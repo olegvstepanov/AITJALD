@@ -126,7 +126,7 @@ function addWktToMap(wktstring, name, pupulation, col) {
     //colourScale(Math.floor(Math.random()*255))
     var districtObj = wkt.toObject({
         color: col,
-        weight: 0,
+        weight: 1,
         opacity: 1,
         fillOpacity: 0.9
     });
@@ -134,7 +134,38 @@ function addWktToMap(wktstring, name, pupulation, col) {
     var other = '<br><img src="dummygraph.jpg">';
 
     districtObj.bindPopup("<b>"+name+"</b><br>"+pupulation+" households<br>"+other);
+    districtObj.on({
+        mouseover:highlightFeature,
+        mouseout: resetHighlight
+    });
     return districtObj;
 }
 
 year(2011);
+
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 5,
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera) {
+        layer.bringToFront();
+    }
+};
+
+function resetHighlight(e) {
+    var layer = e.target;
+    layer.setStyle({
+        weight: 0.2,
+        opacity: 1,
+        fillOpacity: 0.9
+    });
+};
+
+
+
