@@ -27,9 +27,6 @@ lodcom:upperAdministrativeLevel
         rdfs:domain   dbo:AdministrativeRegion ;
         rdfs:range    dbo:AdministrativeRegion .
 
-dbo:AdministrativeRegion
-        rdfs:subClassOf  "http://www.opengis.net/ont/geosparql#Feature" .
-
 lodcom:districtId  a  rdf:Property ;
         rdfs:comment  "The city administration uses unique identifier for their districts." ;
         rdfs:domain   lodcom:Stadtteil ;

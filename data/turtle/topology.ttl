@@ -90,10 +90,10 @@ lodcom:suedost  lodcom:touches  lodcom:hiltrup , lodcom:ost , lodcom:mitte ;
 
 lodcom:touches  a           rdf:Property ;
         rdfs:comment        "Relates two administrative regions to each other that are spatially touching." ;
-        rdfs:domain         "http://dbpedia.org/ontology/AdministrativeRegion" ;
-        rdfs:range          "http://dbpedia.org/ontology/AdministrativeRegion" ;
-        rdfs:seeAlso        "http://www.opengis.net/ont/geosparql#sfTouches" ;
-        rdfs:subPropertyOf  "http://www.opengis.net/ont/geosparql#sfTouches" .
+        rdfs:domain         dbo:AdministrativeRegion ;
+        rdfs:range          dbo:AdministrativeRegion ;
+        rdfs:seeAlso        geo:sfTouches ;
+        rdfs:subPropertyOf  geo:sfTouches .
 
 lodcom:pluggendorf  lodcom:touches  lodcom:josef , lodcom:aegidii , lodcom:schloss , lodcom:geist , lodcom:aaseestadt , lodcom:sentrup ;
         geo:sfTouches   lodcom:aaseestadt , lodcom:aegidii , lodcom:geist , lodcom:sentrup , lodcom:schloss , lodcom:josef .
