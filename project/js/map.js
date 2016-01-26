@@ -62,52 +62,6 @@ $('#y2014').on('click', function(){
 
 var currentYear = 2011;
 
-var info = L.control();
-
-info.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-    this.update();
-    return this._div;
-};
-
-info.update = function (name, pop) {
-    if (name){
-        // console.log(name);
-        this._div.innerHTML = '<h4>Households</h4>' +
-        '<b>' + name + '</b><br />' + pop + ' households';
-    }
-    else {
-        // console.log(name);
-        this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon';
-    }
-};
-
-info.addTo(map);
-
-// function highlightFeature(e, name, pop) {
-//     var layer = e.target;
-//     layer.setStyle({
-//         weight: 5,
-//         dashArray: '',
-//         fillOpacity: 0.7
-//     });
-
-//     if (!L.Browser.ie && !L.Browser.opera) {
-//         layer.bringToFront();
-//     }
-//     info.update(name, pop);
-// };
-
-// function resetHighlight(e) {
-//     var layer = e.target;
-//     layer.setStyle({
-//         weight: 0.2,
-//         opacity: 1,
-//         fillOpacity: 0.9
-//     });
-//     info.update();
-// };
-
 var showThis = "Stadtteil";
 map.on('zoomend', function () {
     console.log(map.getZoom());
@@ -210,9 +164,25 @@ function addWktToMap(wktstring, name, pupulation, col) {
 
 year(2011);
 
-// method that we will use to update the control based on feature properties passed
+var info = L.control();
 
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
 
+info.update = function (name, pop) {
+    if (name){
+        this._div.innerHTML = '<h4>Households</h4>' +
+        '<b>' + name + '</b><br />' + pop + ' households';
+    }
+    else {
+        this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon';
+    }
+};
+
+info.addTo(map);
 
 
 
