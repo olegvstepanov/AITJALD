@@ -85,7 +85,7 @@ function year(y) {
         output: 'json'
     },
     function(data){
-        console.log(data);
+        // console.log(data);
         processBindings(data);
     });
     currentYear = y;
@@ -113,6 +113,7 @@ function processBindings(data) {
     for(var i in data.results.bindings) {
         var colorcode = colorScale( parseInt(data.results.bindings[i].n.value) ).hex();
         var poly = addWktToMap(data.results.bindings[i].wkt.value, data.results.bindings[i].name.value, data.results.bindings[i].n.value, colorcode);
+        // console.log(data.results.bindings[i].name.value)
         featureGroup.addLayer(poly);
     }
     featureGroup.addTo(map);
@@ -133,7 +134,7 @@ function addWktToMap(wktstring, name, pupulation, col) {
 
     var other = '<br><img src="dummygraph.jpg">';
 
-    districtObj.bindPopup("<b>"+name+"</b><br>"+pupulation+" households<br>"+other);
+    // districtObj.bindPopup("<b>"+name+"</b><br>"+pupulation+" households<br>"+other);
 
     districtObj.on('mouseover', function (e) {
         var layer = e.target;
@@ -158,7 +159,21 @@ function addWktToMap(wktstring, name, pupulation, col) {
         });
         info.update();
     });
-    
+
+    districtObj.on('click', function () {
+        var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+        $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
+            query: qry,
+            output: 'json'
+        },
+        function(data){
+            for(var i in data.results.bindings) {
+                console.log(data.results.bindings[i].name.value, data.results.bindings[i].n.value)
+            }
+            // console.log(currentYear);
+        });
+    });
+
     return districtObj;
 }
 
@@ -183,6 +198,10 @@ info.update = function (name, pop) {
 };
 
 info.addTo(map);
+
+
+
+
 
 
 
