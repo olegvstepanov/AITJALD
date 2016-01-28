@@ -28,3 +28,9 @@
     margin: 0 0 5px;
     color: #777;
 }
+
+#chartContainer{
+	height: 300px; 
+	width: 300px;
+	/*padding:px px;*/
+}

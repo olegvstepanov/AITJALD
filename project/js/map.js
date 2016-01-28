@@ -136,21 +136,35 @@ function addWktToMap(wktstring, name, pupulation, col) {
 
     // districtObj.bindPopup("<b>"+name+"</b><br>"+pupulation+" households<br>"+other);
 
-    districtObj.on('mouseover', function (e) {
-        var layer = e.target;
-        layer.setStyle({
-            weight: 5,
-            dashArray: '',
-            fillOpacity: 0.7
-        });
+    bindMouseEvents(districtObj, name, pupulation);
 
-        if (!L.Browser.ie && !L.Browser.opera) {
-            layer.bringToFront();
-        }
-        info.update(name, pupulation);
-    });
+    return districtObj;
+}
 
-    districtObj.on('mouseout', function (e) {
+function bindMouseEvents(districtObj, name, pupulation) {
+    districtObj.on('mouseover', createMouseOverHandler(name, pupulation));
+
+    districtObj.on('mouseout', mouseOutHandler);
+
+    districtObj.on('click', createClickHandler(name, pupulation));
+
+
+    function createMouseOverHandler(name, pupulation) {
+        return function (e) {
+            var layer = e.target;
+            layer.setStyle({
+                weight: 5,
+                dashArray: '',
+                fillOpacity: 0.7
+            });
+            if (!L.Browser.ie && !L.Browser.opera) {
+                layer.bringToFront();
+            }
+            info.update(name, pupulation);
+        };
+    }
+
+    function mouseOutHandler(e) {
         var layer = e.target;
         layer.setStyle({
             weight: 0.2,
@@ -158,23 +172,58 @@ function addWktToMap(wktstring, name, pupulation, col) {
             fillOpacity: 0.9
         });
         info.update();
-    });
+    }
 
-    districtObj.on('click', function () {
-        var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
-        $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
-            query: qry,
-            output: 'json'
-        },
-        function(data){
-            for(var i in data.results.bindings) {
-                console.log(data.results.bindings[i].name.value, data.results.bindings[i].n.value)
-            }
-            // console.log(currentYear);
-        });
-    });
+    function createClickHandler(name, pupulation) {
+        return function(e) {
+            var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+            $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
+                query: qry,
+                output: 'json'
+            },
+            function(data){
+                var chartLegend = [];
+                chartLegend.push({y:parseInt(pupulation), label:name})
+                for(var i in data.results.bindings) {
+                    var bar = {};
+                    info.stat(data.results.bindings[i].name.value, data.results.bindings[i].n.value)
+                    bar.y = parseInt(data.results.bindings[i].n.value);
+                    bar.label = data.results.bindings[i].name.value
+                    chartLegend.push(bar);
+                }
+                var chart = new CanvasJS.Chart("chartContainer", {
 
-    return districtObj;
+                    title:{
+                        text:"Neighbor districts households"
+
+                    },
+                    animationEnabled: false,
+                    axisX:{
+                        interval: 1,
+                        gridThickness: 0,
+                        labelFontSize: 10,
+                        labelFontStyle: "normal",
+                        labelFontWeight: "normal",
+                        labelFontFamily: "Lucida Sans Unicode"
+                    },
+                    axisY2:{
+                        interlacedColor: "rgba(1,77,101,.2)",
+                        gridColor: "rgba(1,77,101,.1)"
+                    },
+                    data: [
+                    {     
+                        type: "bar",
+                        name: "households",
+                        axisYType: "secondary",
+                        color: "#014D65",               
+                        dataPoints: chartLegend
+                    }
+                    ]
+                });
+chart.render();
+});
+}
+};
 }
 
 year(2011);
@@ -193,8 +242,14 @@ info.update = function (name, pop) {
         '<b>' + name + '</b><br />' + pop + ' households';
     }
     else {
-        this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon';
+        this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon to see number of households.'+'<br />'+'Click to see stats for neighbors.';
     }
+};
+
+info.stat = function (name, pop) {
+
+        this._div.innerHTML = this._div.innerHTML+
+        '<div id="chartContainer"></div>'
 };
 
 info.addTo(map);
