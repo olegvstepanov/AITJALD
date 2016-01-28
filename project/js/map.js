@@ -143,11 +143,8 @@ function addWktToMap(wktstring, name, population, col) {
 
 function bindMouseEvents(districtObj, name, population) {
     districtObj.on('mouseover', createMouseOverHandler(name, population));
-
     districtObj.on('mouseout', mouseOutHandler);
-
     districtObj.on('click', createClickHandler(name, population));
-
 
     function createMouseOverHandler(name, population) {
         return function (e) {
@@ -161,7 +158,7 @@ function bindMouseEvents(districtObj, name, population) {
                 layer.bringToFront();
             }
             info.update(name, population);
-        };
+        }
     }
 
     function mouseOutHandler(e) {
@@ -186,7 +183,7 @@ function bindMouseEvents(districtObj, name, population) {
                 chartLegend.push({y:parseInt(population), label:name})
                 for(var i in data.results.bindings) {
                     var bar = {};
-                    info.stat(data.results.bindings[i].name.value, data.results.bindings[i].n.value)
+                    info.stat();
                     bar.y = parseInt(data.results.bindings[i].n.value);
                     bar.label = data.results.bindings[i].name.value
                     chartLegend.push(bar);
@@ -196,12 +193,10 @@ function bindMouseEvents(districtObj, name, population) {
 
             function createChart(chartLegend) {
                 var chart = new CanvasJS.Chart("chartContainer", {
-
                     title:{
-                        text:"Neighbor districts households"
-
+                        text:"Neighbor districts households " + currentYear
                     },
-                    animationEnabled: false,
+                    animationEnabled: true,
                     axisX:{
                         interval: 1,
                         gridThickness: 0,
@@ -242,18 +237,15 @@ info.onAdd = function (map) {
 
 info.update = function (name, pop) {
     if (name){
-        this._div.innerHTML = '<h4>Households</h4>' +
-        '<b>' + name + '</b><br />' + pop + ' households';
+        this._div.innerHTML = '<h4>Households</h4>' + '<b>' + name + '</b><br />' + pop + ' households';
     }
     else {
         this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon to see number of households.'+'<br />'+'Click to see stats for neighbors.';
     }
 };
 
-info.stat = function (name, pop) {
-
-        this._div.innerHTML = this._div.innerHTML+
-        '<div id="chartContainer"></div>'
+info.stat = function () {
+        this._div.innerHTML = this._div.innerHTML + '<div id="chartContainer"></div>' //add chart to div
 };
 
 info.addTo(map);
