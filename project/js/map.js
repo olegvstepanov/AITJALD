@@ -119,8 +119,8 @@ function processBindings(data) {
     featureGroup.addTo(map);
 }
 
-function addWktToMap(wktstring, name, pupulation, col) {
-    //console.log(wktstring, name, pupulation, col);
+function addWktToMap(wktstring, name, population, col) {
+    //console.log(wktstring, name, population, col);
     //console.log(name);
     wkt.read(wktstring);
     //var rgb = "rgb("+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+")"; // random colour
@@ -134,22 +134,22 @@ function addWktToMap(wktstring, name, pupulation, col) {
 
     var other = '<br><img src="dummygraph.jpg">';
 
-    // districtObj.bindPopup("<b>"+name+"</b><br>"+pupulation+" households<br>"+other);
+    // districtObj.bindPopup("<b>"+name+"</b><br>"+population+" households<br>"+other);
 
-    bindMouseEvents(districtObj, name, pupulation);
+    bindMouseEvents(districtObj, name, population);
 
     return districtObj;
 }
 
-function bindMouseEvents(districtObj, name, pupulation) {
-    districtObj.on('mouseover', createMouseOverHandler(name, pupulation));
+function bindMouseEvents(districtObj, name, population) {
+    districtObj.on('mouseover', createMouseOverHandler(name, population));
 
     districtObj.on('mouseout', mouseOutHandler);
 
-    districtObj.on('click', createClickHandler(name, pupulation));
+    districtObj.on('click', createClickHandler(name, population));
 
 
-    function createMouseOverHandler(name, pupulation) {
+    function createMouseOverHandler(name, population) {
         return function (e) {
             var layer = e.target;
             layer.setStyle({
@@ -160,7 +160,7 @@ function bindMouseEvents(districtObj, name, pupulation) {
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
             }
-            info.update(name, pupulation);
+            info.update(name, population);
         };
     }
 
@@ -174,7 +174,7 @@ function bindMouseEvents(districtObj, name, pupulation) {
         info.update();
     }
 
-    function createClickHandler(name, pupulation) {
+    function createClickHandler(name, population) {
         return function(e) {
             var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
             $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
@@ -183,7 +183,7 @@ function bindMouseEvents(districtObj, name, pupulation) {
             },
             function(data){
                 var chartLegend = [];
-                chartLegend.push({y:parseInt(pupulation), label:name})
+                chartLegend.push({y:parseInt(population), label:name})
                 for(var i in data.results.bindings) {
                     var bar = {};
                     info.stat(data.results.bindings[i].name.value, data.results.bindings[i].n.value)
@@ -191,6 +191,10 @@ function bindMouseEvents(districtObj, name, pupulation) {
                     bar.label = data.results.bindings[i].name.value
                     chartLegend.push(bar);
                 }
+                createChart(chartLegend);
+            });
+
+            function createChart(chartLegend) {
                 var chart = new CanvasJS.Chart("chartContainer", {
 
                     title:{
@@ -220,10 +224,10 @@ function bindMouseEvents(districtObj, name, pupulation) {
                     }
                     ]
                 });
-chart.render();
-});
-}
-};
+                chart.render();
+            }
+        }
+    }
 }
 
 year(2011);
