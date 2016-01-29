@@ -117,6 +117,7 @@ function processBindings(data) {
         featureGroup.addLayer(poly);
     }
     featureGroup.addTo(map);
+    addHeaderToSideBar();
 }
 
 function addWktToMap(wktstring, name, population, col) {
@@ -138,7 +139,12 @@ function addWktToMap(wktstring, name, population, col) {
 
     bindMouseEvents(districtObj, name, population);
 
+
     return districtObj;
+}
+
+function addHeaderToSideBar() {
+    $("#stat").append('<p>Statistics</p>')
 }
 
 function bindMouseEvents(districtObj, name, population) {
@@ -157,7 +163,7 @@ function bindMouseEvents(districtObj, name, population) {
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
             }
-            info.update(name, population);
+            // info.update(name, population);
         }
     }
 
@@ -168,28 +174,47 @@ function bindMouseEvents(districtObj, name, population) {
             opacity: 1,
             fillOpacity: 0.9
         });
-        info.update();
+        // info.update();
+    }
+
+    function findParent(name) {
+        return function(e) {
+            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?parent geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+            $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
+                query: qryParent,
+                output: 'json'
+            },
+            function(data){
+                console.log(data.results.bindings)
+            });
+        }
     }
 
     function createClickHandler(name, population) {
         return function(e) {
-            var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+            var qryNeighbor = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
             $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
-                query: qry,
+                query: qryNeighbor,
                 output: 'json'
             },
             function(data){
                 var chartLegend = [];
                 chartLegend.push({y:parseInt(population), label:name})
                 for(var i in data.results.bindings) {
-                    var bar = {};
-                    info.stat();
-                    bar.y = parseInt(data.results.bindings[i].n.value);
-                    bar.label = data.results.bindings[i].name.value
-                    chartLegend.push(bar);
+                    var barChart = {};
+                    // info.stat();
+                    addChartDiv();
+                    barChart.y = parseInt(data.results.bindings[i].n.value);
+                    barChart.label = data.results.bindings[i].name.value
+                    chartLegend.push(barChart);
                 }
                 createChart(chartLegend);
             });
+            // findParent(name);
+
+            function addChartDiv() {
+                $("#stat").append('<div id="chartContainer"></div>')
+            }
 
             function createChart(chartLegend) {
                 var chart = new CanvasJS.Chart("chartContainer", {
@@ -216,8 +241,7 @@ function bindMouseEvents(districtObj, name, population) {
                         axisYType: "secondary",
                         color: "#014D65",               
                         dataPoints: chartLegend
-                    }
-                    ]
+                    }]
                 });
                 chart.render();
             }
@@ -227,28 +251,31 @@ function bindMouseEvents(districtObj, name, population) {
 
 year(2011);
 
-var info = L.control();
+// var info = L.control();
+// var stat = document.getElementById("stat");
 
-info.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-    this.update();
-    return this._div;
-};
+// info.onAdd = function (map) {
+//     this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+//     this.update();
+//     return this._div;
+// };
 
-info.update = function (name, pop) {
-    if (name){
-        this._div.innerHTML = '<h4>Households</h4>' + '<b>' + name + '</b><br />' + pop + ' households';
-    }
-    else {
-        this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon to see number of households.'+'<br />'+'Click to see stats for neighbors.';
-    }
-};
+// info.update = function (name, pop) {
+//     if (name){
+//         this._div.innerHTML = '<h4>Households</h4>' + '<b>' + name + '</b><br />' + pop + ' households';
+//     }
+//     else {
+//         this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon to see number of households.'+'<br />'+'Click to see stats for neighbors.';
+//     }
+// };
 
-info.stat = function () {
-        this._div.innerHTML = this._div.innerHTML + '<div id="chartContainer"></div>' //add chart to div
-};
+// info.stat = function () {
+//         this._div.innerHTML = this._div.innerHTML + '<div id="chartContainer"></div>' //add chart to div
+// };
 
-info.addTo(map);
+
+
+// info.addTo(map);
 
 
 

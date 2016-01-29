@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 	<link rel="stylesheet" href="css/map.css" />
+
 </head>
 <body>
 
@@ -35,8 +36,17 @@
 		</div>
 	</nav>
 
-	<div id="map"></div>
 	<div id="voc"></div>
+	<div class="container-fluid">
+		<div class="row">
+			<div id="map" class="col-md-9 col-sm-9"></div>
+			<div id="stat" class="col-md-3 col-sm-3">
+					<h4 class="text-center"></h4>
+						<p class="text-justify"></p>
+			</div>
+		</div>
+	</div>
+
 
 	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
@@ -47,6 +57,24 @@
 	<script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
 	
 	<script>
+
+		var mapmargin = 5;
+		$('#map').css("height", ($(window).height()));
+		// $(window).on("resize", resize);
+		// resize();
+		// function resize(){
+		// 	if($(window).width()>=980){
+		// 		$('#map').css("height", ($(window).height() - mapmargin));    
+		// 		$('#map').css("margin-top",5);
+		// 	}else{
+		// 		$('#map').css("height", ($(window).height() - (mapmargin+12)));    
+		// 		$('#map').css("margin-top",-21);
+		// 	}
+		// }
+
+
+
+
 		// global variables / flags
 		var GLOBAL = {
 			"DOCUMENTATION_FETCHED": false
