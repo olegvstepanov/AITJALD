@@ -151,6 +151,7 @@ function bindMouseEvents(districtObj, name, population) {
     districtObj.on('mouseover', createMouseOverHandler(name, population));
     districtObj.on('mouseout', mouseOutHandler);
     districtObj.on('click', createClickHandler(name, population));
+    districtObj.on('click', findParent(name));
 
     function createMouseOverHandler(name, population) {
         return function (e) {
@@ -177,19 +178,29 @@ function bindMouseEvents(districtObj, name, population) {
         // info.update();
     }
 
-    function findParent(name) {
-        return function(e) {
-            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?parent geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
-            $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
-                query: qryParent,
-                output: 'json'
-            },
-            function(data){
-                console.log(data.results.bindings)
-            });
-        }
-    }
+    // function findParent(name) {
+    //     return function(e) {
+    //         var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?parent geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+    //         $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
+    //             query: qryParent,
+    //             output: 'json'
+    //         },
+    //         function(data){
+    //             console.log(data.results.bindings)
+    //         });
+    //     }
+    // }
 
+    function findParent(name) {
+        var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?parent geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+        function func(data) {
+            console.log(data.results.bindings)
+        }
+        postQuerry(qryParent, func)
+    }
+    
+    // var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:"+category+" . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+    
     function createClickHandler(name, population) {
         return function(e) {
             var qryNeighbor = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
@@ -250,6 +261,19 @@ function bindMouseEvents(districtObj, name, population) {
 }
 
 year(2011);
+
+
+    function postQuerry(qry, func) {
+        return function(e) {
+            $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
+                query: qry,
+                output: 'json'
+            },
+            function(data){
+                func;
+            });
+        }
+    }
 
 // var info = L.control();
 // var stat = document.getElementById("stat");
