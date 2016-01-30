@@ -31,35 +31,43 @@
 				</div><!--/.nav-collapse -->
 			</div>
 		</div>
-		<div class="col-xs-3">
+		<div id="sidebar-container" class="col-xs-3">
 			<h2>Münster house hold data visualized</h2>
 			<hr>
 			<form>
 				<div class="form-group">
 				<label for="dataset">Select a data set</label>
-				<select id="dataset" class="form-control">
-					<option>1 person households</option>
-					<option>2 person households</option>
-					<option>3 person households</option>
-					<option>4 person households</option>
-					<option>5+ person households</option>
+				<select id="dataset" class="form-control" disabled="true">
+					<option value="" selected class="disabled">Select a dataset</option>
+					<!-- populated in menu.js -->
 				</select>
 				</div>
 				
 				<div class="form-group">
+				<label for="datasetgender">Select a gender</label>
+				<select id="datasetgender" class="form-control">
+					<!-- populated in menu.js -->
+				</select>
+				</div>
+
+				<div class="form-group">
+				<label for="datasetage">Select an age group</label>
+				<select id="datasetage" class="form-control">
+					<!-- populated in menu.js -->
+				</select>
+				</div>
+
+				<div class="form-group">
 				<label for="datasetyear">Select a year</label>
 				<select id="datasetyear" class="form-control">
-					<option value="2011">2011</option>
-					<option value="2012">2012</option>
-					<option value="2013">2013</option>
-					<option value="2014">2014</option>
+					<!-- populated in menu.js -->
 				</select>
 				</div>
 				
-				<button class="btn btn-default">Show me</button>
+				<button class="btn btn-info">Show me</button>
 			</form>
 		</div>
-		<div class="col-xs-9 fill-height nopadding">
+		<div id="content-container" class="col-xs-9 fill-height nopadding">
 			<div id="map"></div>
 			<div id="voc"></div>
 		</div>
@@ -92,6 +100,9 @@
 		
 		function hideMap() {
 			$('#map').hide();
+			$('#sidebar-container').hide();
+			$('#content-container').removeClass('col-xs-9');
+			$('#content-container').addClass('col-xs-12');
 		}
 		
 		function showDocumentation() {
@@ -104,10 +115,14 @@
 		
 		function hideDocumentation() {
 			$('#voc').hide();
+			$('#sidebar-container').show();
+			$('#content-container').removeClass('col-xs-12');
+			$('#content-container').addClass('col-xs-9');
 		}
 	</script>
 	<script src="js/doc.js"></script>
 	<script src="js/map.js"></script>
+	<script src="js/menu.js"></script>
 	
 </body>
 </html>
