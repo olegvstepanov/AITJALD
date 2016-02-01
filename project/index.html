@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 	<link rel="stylesheet" href="css/map.css" />
+	<!--<link rel="stylesheet" href="css/sidebar.css" />-->
 </head>
 <body>
 
@@ -29,14 +30,16 @@
 					<li><a href="#" id="y2012">2012</a></li>
 					<li><a href="#" id="y2013">2013</a></li>
 					<li><a href="#" id="y2014">2014</a></li>
+					<li><a href="#" id="datasheet_tab">Data Sheet</a></li>
 					<li><a href="#" id="voc_tab">Vocabulary</a></li>
 				</ul>
 			</div><!--/.nav-collapse -->
 		</div>
 	</nav>
-
+	
 	<div id="map"></div>
 	<div id="voc"></div>
+	<div id="datasheet" class="container"></div>
 
 	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
@@ -44,6 +47,7 @@
 	<script src="https://cdn.rawgit.com/arthur-e/Wicket/master/wicket.js"></script>
 	<script src="https://cdn.rawgit.com/arthur-e/Wicket/master/wicket-leaflet.js"></script>
 	<script src="https://rawgit.com/gka/chroma.js/master/chroma.min.js"></script>
+	<script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
 	
 	<script>
 		// global variables / flags
@@ -66,19 +70,34 @@
 		}
 		
 		function showDocumentation() {
+			hideMap();
+			hideDataSheet();
 			$('#voc').show();
 		}
 		
 		function showMap() {
+			hideDataSheet();
+			hideDocumentation();
 			$('#map').show();
 		}
 		
 		function hideDocumentation() {
 			$('#voc').hide();
 		}
+		
+		function hideDataSheet() {
+		    $("#datasheet").hide();
+		};
+
+		function showDataSheet() {
+			hideMap();
+			hideDocumentation();
+		    $("#datasheet").show();
+		};
+
 	</script>
 	<script src="js/doc.js"></script>
 	<script src="js/map.js"></script>
-	
+	<script src="js/sheet.js"></script>
 </body>
 </html>
