@@ -50,7 +50,7 @@ map.on('zoomend', function () {
 });
 
 function year(y) {
-    var qry = "PREFIX afn: <http://jena.hpl.hp.com/ARQ/function#> PREFIX fn: <http://www.w3.org/2005/xpath-functions#> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX geof: <http://www.opengis.net/def/function/geosparql/> PREFIX gml: <http://www.opengis.net/ont/gml#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX par: <http://parliament.semwebcentral.org/parliament#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX sf: <http://www.opengis.net/ont/sf#> PREFIX time: <http://www.w3.org/2006/time#> PREFIX units: <http://www.opengis.net/def/uom/OGC/1.0/> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX lodcom: <http://vocab.lodcom.de/> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> {?bezirk rdf:type lodcom:"+showThis+" . ?bezirk <http://www.w3.org/2000/01/rdf-schema#label> ?name . ?obs <http://purl.org/linked-data/cube#dataSet> lodcom:SingleHouseholdTotalCount . ?obs <http://vocab.lodcom.de/numberOfHouseholds> ?num . ?obs lodcom:refArea ?bezirk . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+y+"-01-01T00:00:00/P1Y> . ?obs <http://purl.org/linked-data/sdmx/2009/measure#obsValue> ?n . ?bezirk geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt }}";
+    var qry = "PREFIX afn: <http://jena.hpl.hp.com/ARQ/function#> PREFIX fn: <http://www.w3.org/2005/xpath-functions#> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX geof: <http://www.opengis.net/def/function/geosparql/> PREFIX gml: <http://www.opengis.net/ont/gml#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX par: <http://parliament.semwebcentral.org/parliament#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX sf: <http://www.opengis.net/ont/sf#> PREFIX time: <http://www.w3.org/2006/time#> PREFIX units: <http://www.opengis.net/def/uom/OGC/1.0/> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX lodcom: <http://vocab.lodcom.de/> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> {?bezirk rdf:type lodcom:"+showThis+" . ?bezirk <http://www.w3.org/2000/01/rdf-schema#label> ?name . ?obs <http://purl.org/linked-data/cube#dataSet> lodcom:SingleHouseholdTotalCount . ?obs <http://vocab.lodcom.de/numberOfHouseholds> ?num . ?obs lodcom:refArea ?bezirk . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+y+"-01-01T00:00:00/P1Y> . ?obs <http://purl.org/linked-data/sdmx/2009/measure#obsValue> ?n . ?bezirk geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt FILTER (lang(?name) = 'en')}}";
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: qry,
         output: 'json'
@@ -114,8 +114,8 @@ function addWktToMap(wktstring, name, population, col) {
 function bindMouseEvents(districtObj, name, population) {
     districtObj.on('mouseover', createMouseOverHandler(name, population));
     districtObj.on('mouseout', mouseOutHandler);
-    districtObj.on('click', createClickHandler(name, population));
-    districtObj.on('click', findParent(name));
+    // districtObj.on('click', createClickHandler(name, population));
+    districtObj.on('click', createDistrictAndParentChart(name));
 
     function createMouseOverHandler(name, population) {
         return function (e) {
@@ -123,7 +123,7 @@ function bindMouseEvents(districtObj, name, population) {
             layer.setStyle({
                 weight: 5,
                 dashArray: '',
-                fillOpacity: 0.7
+                fillOpacity: 0.4
             });
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
@@ -135,109 +135,121 @@ function bindMouseEvents(districtObj, name, population) {
     function mouseOutHandler(e) {
         var layer = e.target;
         layer.setStyle({
-            weight: 0.2,
+            weight: 1,
             opacity: 1,
             fillOpacity: 0.9
         });
         // info.update();
     }
 
-    // function findParent(name) {
-    //     return function(e) {
-    //         var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?parent geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
-    //         $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
-    //             query: qryParent,
-    //             output: 'json'
-    //         },
-    //         function(data){
-    //             console.log(data.results.bindings)
-    //         });
-    //     }
-    // }
-
     function postQuery(qry, func) {
         $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
             query: qry,
             output: 'json'
         },
-        function(data){
-            func(data);
-        });
+            func
+        );
     }
 
-
-    function findParent(name) {
-        return function(e) {
-            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?parent geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
-            var func = function (data) {
-                // console.log(data.results.bindings[0].name.value)
-            }
-            postQuery(qryParent, func);
+    function createDistrictAndParentChart(name) {
+        return function(e){
+            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+            var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { ?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  FILTER (lang(?catname) = 'en')}}";
+            getDataForChart(name, qryDistrict, "district-container");
+            getDataForChart(name, qryParent, "parent-container");
         }
     }
-    
-    // var qry = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb:    <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:"+category+" . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+
+    function getDataForChart(name, qry, id) {
+            // var chartData = [];
+            // var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+
+            postQuery(qry, function(data) {
+                 var chartData = data.results.bindings.map(function(binding) {
+                    return {
+                        y : parseInt(binding.n.value),
+                        name: binding.catname.value
+                    }
+                });
+                 addChartDiv(id);
+                 $(document).ajaxStop(function () {
+                     createPieChart(name, chartData, id);
+                 });
+            });
+    }
+
+    function createPieChart(name, chartData, id) {
+        var chart = new CanvasJS.Chart(id,
+        {
+            title:{
+                text: "Households distribution in "+name,
+                fontFamily: "arial black"
+            },
+            animationEnabled: true,
+            legend: {
+                verticalAlign: "bottom",
+                horizontalAlign: "center"
+            },
+            theme: "theme1",
+            data: [
+            {        
+                type: "pie",
+                indexLabelFontFamily: "Garamond",       
+                indexLabelFontSize: 16,
+                indexLabelFontWeight: "bold",
+                startAngle:0,
+                indexLabelFontColor: "MistyRose",       
+                indexLabelLineColor: "darkgrey", 
+                indexLabelPlacement: "inside", 
+                toolTipContent: "{name}: {y}households",
+                showInLegend: true,
+                indexLabel: "#percent%", 
+                dataPoints: chartData
+            }
+            ]
+        });
+        // console.log(chart);
+        chart.render();
+        console.log(id)
+        chart = {};
+    }
+
+    function addChartDiv(id) {
+        $("#sidebar-container").append('<div id='+id+'></div>')
+    }
+
     
     function createClickHandler(name, population) {
         return function(e) {
-            var catogories = ["SingleHouseholdTotalCount", "TwoPersonsHouseholdCount", "ThreePersonsHouseholdCount", "FourPersonsHouseholdCount", "FivePersonsMoreHouseholdCount"];
-            var category = "";
+            var categories = ["SingleHouseholdTotalCount", "TwoPersonsHouseholdCount", "ThreePersonsHouseholdCount", "FourPersonsHouseholdCount", "FivePersonsMoreHouseholdCount"];
             var chartContent = [];
-            for (var cat in catogories) {
-                category = catogories[cat];
-                
-                var qryDiffCategory = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:"+category+" . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
+            categories.forEach(function(category) {
+                var qryDiffCategory = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:"+category+" . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt FILTER (lang(?name) = 'en')}}";
+                var oneCategWithLegend = {
+                    type: "stackedBar",
+                    showInLegend: true,
+                    name: category,
+                    axisYType: "secondary"
+                };
 
-                $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
-                    query: qryDiffCategory,
-                    output: 'json'
-                },
-                function(data){
-                    var oneCategoryData = {type: "stackedBar",
-                        showInLegend: true,
-                        name: category,
-                        axisYType: "secondary"};
-                        console.log(category);
-                    var allDistrictsData = [];
-                    // console.log(data.results.bindings)
-                    // allDistrictsData.push({y:parseInt(population), label:name})
-                    for(var i in data.results.bindings) {
-                        var districtData = {};
-                        // console.log(data.results.bindings[i].n.value);
-                        // info.stat();
-                        addChartDiv();
-                        districtData.y = parseInt(data.results.bindings[i].n.value);
-                        districtData.label = data.results.bindings[i].name.value
-                        allDistrictsData.push(districtData);
-                    }
-                    oneCategoryData.dataPoints = allDistrictsData;
-                    chartContent.push(oneCategoryData);
-                    console.log(chartContent);
+                postQuery(qryDiffCategory, function (data){
+                    var allDistrOneCateg = data.results.bindings.map(function(binding) {
+                        return {
+                            y: parseInt(binding.n.value),
+                            label: binding.name.value
+                        };
+                    });
+                    oneCategWithLegend.dataPoints = allDistrOneCateg;
+                    chartContent.push(oneCategWithLegend);
                 });
-            }
+            });
             addChartDiv();
-            createChart(chartContent);
-
-            // var qryNeighbor = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:SingleHouseholdTotalCount . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt.}}";
-            // $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
-            //     query: qryNeighbor,
-            //     output: 'json'
-            // },
-            // function(data){
-            //     var chartContent = [];
-            //     chartContent.push({y:parseInt(population), label:name})
-            //     for(var i in data.results.bindings) {
-            //         var barChart = {};
-            //         // info.stat();
-            //         addChartDiv();
-            //         barChart.y = parseInt(data.results.bindings[i].n.value);
-            //         barChart.label = data.results.bindings[i].name.value
-            //         chartContent.push(barChart);
-            //     }
-            //     createChart(chartContent);
-            // });
-            // findParent(name);
-
+            console.log("--- calling createChart with ", chartContent);
+            window.chartContent = chartContent;
+            $(document).ajaxStop(function () {
+                createChart(chartContent);
+            });
+            
             function addChartDiv() {
                 $("#sidebar-container").append('<div id="chartContainer"></div>')
             }
