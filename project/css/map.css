@@ -1,6 +1,7 @@
 html, body{
-	height:100%;
+    height:100%;
 }
+
 
 .fill {
     min-height: 100%;
@@ -15,11 +16,11 @@ html, body{
 }
 
 .nopadding {
-	padding: 0;
+    padding: 0;
 }
 
 .navbar{
-	margin-bottom:0;
+    margin-bottom:0;
 }
 
 .content{
@@ -28,18 +29,18 @@ html, body{
 }
 
 #map{
-	min-width:100%;
-	width:100%;
+    min-width:100%;
+    width:100%;
     top: 0px;
     bottom: 0;
     position: absolute;
 }
 
 #doc {
-	position: absolute;
-	bottom: 0px;
-	width: 100%;
-	display: none;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    display: none;
 }
 
 #datasheet {
@@ -51,4 +52,28 @@ html, body{
 }
 #ds_charts {
 	margin-top: 10px;
+}
+
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+#chartContainer {
+    height: 70%; 
+    width: 100%;
+}
+
+#neighbor-container{
+    height: 400px; 
+    width: 400px;
 }

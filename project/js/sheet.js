@@ -244,15 +244,15 @@ function visualizeDataSheet(data) {
     }
     
     
-    createBarChart(total_group,"Household Developments from 2010 to 2014","300px","35%",$("#ds_charts_body"),false);
-    createBarChart(average_group,"Average Persons per Household","300px","35%",$("#ds_charts_body"),false);
-    createBarChart(ds_group,"Household Developments by Household type 2010-2014","300px","70%",$("#ds_charts_body"),true);
-    createPieChart(age_block,"ageRange","value",$("#single_charts_body"));
+    createSheetBarChart(total_group,"Household Developments from 2010 to 2014","300px","35%",$("#ds_charts_body"),false);
+    createSheetBarChart(average_group,"Average Persons per Household","300px","35%",$("#ds_charts_body"),false);
+    createSheetBarChart(ds_group,"Household Developments by Household type 2010-2014","300px","70%",$("#ds_charts_body"),true);
+    createSheetPieChart(age_block,"ageRange","value",$("#single_charts_body"));
     createGenderChart(gender_block,$("#single_charts_body"));
-    createBarChart(child_group,"Households with children compared to single parent Households","400px","60%",$("#child_charts_body"),true);
+    createSheetBarChart(child_group,"Households with children compared to single parent Households","400px","60%",$("#child_charts_body"),true);
 }
 
-function createBarChart(group,title,height,width,parentNode,legend) {
+function createSheetBarChart(group,title,height,width,parentNode,legend) {
     var datasets = [];
     for (var j=0; j < group.length; j++) {
         var arr = group[j];
@@ -311,7 +311,7 @@ function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
 }
 
-function createPieChart(block, labelAttr,valueAttr,parentNode) {
+function createSheetPieChart(block, labelAttr,valueAttr,parentNode) {
     var points = [];
     var totalSingle = 0;
     for (var i in block) {
