@@ -97,8 +97,10 @@ function addWktToMap(wktstring, name, population, col) {
     //var rgb = "rgb("+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+")"; // random colour
     //colourScale(Math.floor(Math.random()*255))
     var districtObj = wkt.toObject({
-        color: col,
-        weight: 1,
+        fillColor: col,
+        color: '#87421F',
+        dashArray: '',
+        weight: 0.5,
         opacity: 1,
         fillOpacity: 0.9
     });
@@ -122,6 +124,7 @@ function bindMouseEvents(districtObj, name) {
             var layer = e.target;
             layer.setStyle({
                 weight: 5,
+                color: '#666',
                 dashArray: '',
                 fillOpacity: 0.4
             });
@@ -135,7 +138,9 @@ function bindMouseEvents(districtObj, name) {
     function mouseOutHandler(e) {
         var layer = e.target;
         layer.setStyle({
-            weight: 1,
+            color: '#87421F',
+            dashArray: '',
+            weight: 0.5,
             opacity: 1,
             fillOpacity: 0.9
         });
@@ -153,7 +158,7 @@ function bindMouseEvents(districtObj, name) {
 
     function createDistrictAndParentChart(name) {
         return function(e){
-            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
             var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { ?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  FILTER (lang(?catname) = 'en')}}";
             addDataToPieChart(name, qryDistrict, "district-container");
             addDataToPieChart(name, qryParent, "parent-container");
@@ -162,6 +167,11 @@ function bindMouseEvents(districtObj, name) {
 
     function addDataToPieChart(name, qry, id) {
             postQuery(qry, function(data) {
+                var currentName =name;
+                if (data.results.bindings[0].name) {
+                    var currentName = data.results.bindings[0].name.value;
+                }
+                console.log(data.results.bindings);
                  var chartData = data.results.bindings.map(function(binding) {
                     return {
                         y : parseInt(binding.n.value),
@@ -169,11 +179,11 @@ function bindMouseEvents(districtObj, name) {
                     }
                 });
                 addChartDiv("#sidebar-container", id);
-                createPieChart(name, chartData, id);
+                createPieChart(currentName, chartData, id);
             });
     }
 
-    function createPieChart(name, chartData, id) {
+    function createPieChart(name, chartData, id, title) {
         var chart = new CanvasJS.Chart(id,
         {
             title:{
@@ -204,11 +214,10 @@ function bindMouseEvents(districtObj, name) {
             ]
         });
         chart.render();
-        chart = {}; //trying to place two pie charts at the same time
     }
 
     function addChartDiv(whereId, whatId) {
-        $(whereId).append('<div id='+whatId+'></div>')
+        $(whereId).append('<div id='+whatId+'></div></br>')
     }
 
     function createNeighborsChart(name) {
