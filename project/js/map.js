@@ -122,12 +122,14 @@ function processBindings(data) {
     gjlayer = L.geoJson(collection, {
         style: styleFeature,
         onEachFeature: function (feature, layer) {
-
             layer.on({
                 click: function(e) {
-                    //console.log(feature);
-                    queryDataSheet(feature.id);
-                    //console.log(e);
+                    var isChecked = $("#data_sheet_toggle").prop("checked");
+                    console.log("checked: "+isChecked);
+                    if (isChecked) {
+                        queryDataSheet(feature.id);
+                    }
+                    
                 }
             });
         }

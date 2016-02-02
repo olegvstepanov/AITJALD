@@ -66,6 +66,11 @@
 				</div>
 	
 				<button class="btn btn-info">Show me</button>
+				<br/>
+				<br/>
+				<label class="btn btn-primary">
+				    <input id="data_sheet_toggle" type="checkbox"> Data Sheet for District
+				</label>
 			</form>
 		</div>
 		<div id="content-container" class="col-xs-9 fill-height nopadding">
@@ -135,7 +140,9 @@
 			hideDocumentation();
 		    $("#datasheet").show();
 		};
-
+		
+		$("#data_sheet_toggle").prop("checked",false);
+		$("#data_sheet_toggle").click(function() {toggleDataSheetTool();});
 	</script>
 	<script src="js/doc.js"></script>
 	<script src="js/map.js"></script>
