@@ -91,16 +91,6 @@ function queryDataSheet(uri) {
     
     $("#datasheet").append(panel_group);
     
-    /*
-    $("#datasheet").append($("<h3>").text("General statistics").attr("data-toggle","collapse").attr("data-target","#ds_charts").addClass("list-group-item"));
-    $("#datasheet").append($("<div>",{id:"ds_charts"}).addClass("collapse").addClass("container"));
-    
-    $("#datasheet").append($("<h3>").text("Single Household statistics").attr("data-toggle","collapse").attr("data-target","#single_charts").addClass("list-group-item"));
-    $("#datasheet").append($("<div>",{id:"single_charts"}).addClass("collapse").addClass("container"));
-    
-    $("#datasheet").append($("<h3>").text("Household with Child statistics").attr("data-toggle","collapse").attr("data-target","#child_charts").addClass("list-group-item"));
-    $("#datasheet").append($("<div>",{id:"child_charts"}).addClass("collapse").addClass("container"));
-    */
     $("#datasheet").append($("<div>",{id:"ds_tables"}).addClass("collapse"));
     showDataSheet();
     
@@ -115,7 +105,7 @@ function queryDataSheet(uri) {
     },
     function(data) {
         visualizeDataSheet(data);
-        $(".collapse").collapse("hide");
+        //$(".collapse").collapse("hide");
     });
 }
 
