@@ -62,3 +62,8 @@ html, body{
     width: 100%;
 }
 
+#neighbor-container{
+    height: 400px; 
+    width: 400px;
+}
+
