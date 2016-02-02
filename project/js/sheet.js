@@ -4,20 +4,6 @@ $('#datasheet_tab').on('click', function(){
     showDataSheet();
 });
 
-function toggleDataSheetTool() {
-    var isChecked = $("#data_sheet_toggle").prop("checked");
-    console.log("checked: "+isChecked);
-    if (!isChecked) {
-        //deactivate
-        console.log("sheet off");
-        delete gjlayer.options.onEachFeature;
-    } else {
-        //activate
-        console.log("sheet on");
-        
-    }
-}
-
 QUERY_DATASHEET = "SELECT DISTINCT ?dataSet ?dataSetName ?district ?year ?sex ?ageRange ?value ?uomLabel\r\n" + 
             "WHERE {\r\n" + 
             "   GRAPH <http://course.introlinkeddata.org/G4> {\r\n" + 
