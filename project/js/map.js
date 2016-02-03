@@ -285,6 +285,11 @@ function createDistrictAndParentChart(name) {
 
 function addDataToPieChart(name, qry, id) {
         postQuery(qry, function(data) {
+            var currentName =name;
+            if (data.results.bindings[0].name) {
+                var currentName = data.results.bindings[0].name.value;
+            }
+
              var chartData = data.results.bindings.map(function(binding) {
                 return {
                     y : parseInt(binding.n.value),
@@ -292,7 +297,7 @@ function addDataToPieChart(name, qry, id) {
                 };
             });
             //addChartDiv("#sidebar-container", id);
-            createPieChart(name, chartData, id);
+            createPieChart(currentName, chartData, id);
         });
 }
 
