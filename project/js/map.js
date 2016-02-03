@@ -158,8 +158,8 @@ function bindMouseEvents(districtObj, name) {
 
     function createDistrictAndParentChart(name) {
         return function(e){
-            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
-            var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { ?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  FILTER (lang(?catname) = 'en')}}";
+            var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}} ORDER BY ASC(?catname)";
+            var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { ?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  FILTER (lang(?catname) = 'en')}} ORDER BY ASC(?catname)";
             addDataToPieChart(name, qryDistrict, "district-container");
             addDataToPieChart(name, qryParent, "parent-container");
         }
@@ -171,12 +171,13 @@ function bindMouseEvents(districtObj, name) {
                 if (data.results.bindings[0].name) {
                     var currentName = data.results.bindings[0].name.value;
                 }
-                console.log(data.results.bindings);
-                 var chartData = data.results.bindings.map(function(binding) {
-                    return {
-                        y : parseInt(binding.n.value),
-                        name: binding.catname.value
-                    }
+                var chartData = data.results.bindings.filter(function(binding){
+                    return binding.catname.value.split(" ").length>5
+                    }).map(function(binding) {
+                        return {
+                            y : parseInt(binding.n.value),
+                            name: binding.catname.value
+                        }
                 });
                 addChartDiv("#sidebar-container", id);
                 createPieChart(currentName, chartData, id);
@@ -199,14 +200,14 @@ function bindMouseEvents(districtObj, name) {
             data: [
             {        
                 type: "pie",
-                indexLabelFontFamily: "Garamond",       
-                indexLabelFontSize: 16,
+                indexLabelFontFamily: "Lucida Sans Unicode",       
+                indexLabelFontSize: 12,
                 indexLabelFontWeight: "bold",
                 startAngle:0,
                 indexLabelFontColor: "MistyRose",       
                 indexLabelLineColor: "darkgrey", 
                 indexLabelPlacement: "inside", 
-                toolTipContent: "{name}: {y} households",
+                toolTipContent: "{name}: {y}",
                 showInLegend: true,
                 indexLabel: "#percent%", 
                 dataPoints: chartData
@@ -222,18 +223,20 @@ function bindMouseEvents(districtObj, name) {
 
     function createNeighborsChart(name) {
         return function(e) {
-            var qryNeighborAllCateg = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> {lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+            var qryNeighborAllCateg = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> {lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}} ORDER BY ASC(?catname)";
             postQuery(qryNeighborAllCateg, function(data) {
                 var chartData = {};
                 for (var i in data.results.bindings) {
                     var categ = data.results.bindings[i].catname.value;
                     var popul = parseInt(data.results.bindings[i].n.value);
-                    var distr = data.results.bindings[i].name.value
-                    if (!(categ in chartData)){
-                        chartData[categ] = [{y : popul, label: distr}]
-                    }
-                    else {
-                        chartData[categ].push({y : popul, label: distr})
+                    var distr = data.results.bindings[i].name.value;
+                    if (categ.split(" ").length>5){
+                        if (!(categ in chartData)){
+                            chartData[categ] = [{y : popul, label: distr}]
+                        }
+                        else {
+                            chartData[categ].push({y : popul, label: distr})
+                        }
                     }
                 }
                 var chartContent = [];
