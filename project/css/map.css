@@ -1,4 +1,5 @@
 html, body{
+	padding-top: 25px;
     height:100%;
 }
 
@@ -11,8 +12,8 @@ html, body{
 }
 
 .fill-height {
-    min-height: calc(100% - 52px);
-    height: calc(100% - 52px);
+    min-height: 100%;
+    height: 100% ;
 }
 
 .nopadding {
@@ -34,6 +35,7 @@ html, body{
     top: 0px;
     bottom: 0;
     position: absolute;
+    z-index: 100;
 }
 
 #doc {
@@ -45,13 +47,12 @@ html, body{
 
 #datasheet {
 	position: absolute;
-	top: 50px;
+	height: 45%;
 	bottom: 0px;
 	width: 100%;
 	display: none;
-}
-#ds_charts {
-	margin-top: 10px;
+	z-index: 900;
+	overflow: auto;
 }
 
 .info {
@@ -69,17 +70,32 @@ html, body{
 }
 
 .sidebar-toggle-button {
-	padding:6px;
-	width: 30px;
+	padding:3px;
+	width: 20px;
 	height: 60px;
 	position:absolute;
 	top:50%;
 	left:25%;
-	margin-left:10px;
+	margin-left:-5px;
 	z-index: 9999;
 }
 
 .sidebar-toggle-button span {
+	text-align: center;
+}
+
+.bottombar-toggle-button {
+	padding-top:0px;
+	width: 60px;
+	height: 20px;
+	position:absolute;
+	bottom: 0%;
+	left:50%;
+	margin-bottom:-5px;
+	z-index: 9998;
+}
+
+.bottombar-toggle-button span {
 	text-align: center;
 }
 

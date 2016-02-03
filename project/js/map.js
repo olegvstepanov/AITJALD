@@ -253,15 +253,19 @@ function createDistrictAndParentChart(name) {
             + "PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> "
             + "PREFIX qb: <http://purl.org/linked-data/cube#> "
             + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-            + "SELECT ?name ?n ?wkt ?catname "
+            + "SELECT ?name ?n ?catname "
             + "WHERE { "
             + "GRAPH <http://course.introlinkeddata.org/G4> { "
                 + "lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. "
-                + "?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . "
-                + "?obs qb:dataSet ?category . ?category rdfs:label ?catname . "
+                + "?parent rdfs:label ?name. "
+                + "?obs lodcom:refArea ?parent . "
+                + "?obs qb:dataSet ?category . "
+                + "?category rdfs:label ?catname . "
                 + "?obs lodcom:numberOfHouseholds ?n . "
                 + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> "
-                + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+                + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
+                + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en') "
+                + "}}";
                             
         var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> "
             + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
@@ -271,10 +275,13 @@ function createDistrictAndParentChart(name) {
             + "WHERE { "
             + "GRAPH <http://course.introlinkeddata.org/G4> { "
                 + "?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . "
-                + "?obs qb:dataSet ?category . ?category rdfs:label "
-                + "?catname . ?obs lodcom:numberOfHouseholds ?n ."
-                + " ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  "
-                + "FILTER (lang(?catname) = 'en')}}";
+                + "?obs qb:dataSet ?category . "
+                + "?category rdfs:label ?catname . "
+                + "?obs lodcom:numberOfHouseholds ?n . "
+                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>.  "
+                + "FILTER (lang(?catname) = 'en') "
+                + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
+                + "}}";
         $("#parent_charts_body").append($("<div>",{id: "distr_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
         $("#parent_charts_body").append($("<div>",{id: "parent_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
         

@@ -1,7 +1,8 @@
 $('#datasheet_tab').on('click', function(){
 
     //$("#datasheet").empty();
-    showDataSheet();
+    //showDataSheet();
+    showBottomMenu();
 });
 
 QUERY_DATASHEET = "SELECT DISTINCT ?dataSet ?dataSetName ?district ?year ?sex ?ageRange ?value ?uomLabel\r\n" + 
@@ -52,53 +53,10 @@ function queryDataSheet(uri) {
 
     $("#datasheet .panel-body").empty();
     
-    /*
-    $("#datasheet").append($("<h1>",{id:"sheet_title"}));
+    //showDataSheet();
+    showBottomMenu();
     
-    var panel_group = $("<div>").addClass("panel-group");
-    var general_panel = $("<div>").addClass("panel panel-default");
-    general_panel.append($("<div>").addClass("panel-heading").append(
-        $("<h3>").addClass("panel-title").append(
-            $("<a>").attr("data-toggle","collapse").attr("href","#ds_charts").text("General statistics")
-        )
-    ));
-    
-    general_panel.append($("<div>",{id:"ds_charts"}).addClass("panel-collapse").addClass("collapse").append(
-        $("<div>",{id:"ds_charts_body"}).addClass("panel-body")
-    ));
- 
-    panel_group.append(general_panel);
-
-    var single_panel = $("<div>").addClass("panel panel-default");
-    single_panel.append($("<div>").addClass("panel-heading").append(
-        $("<h3>").addClass("panel-title").append(
-            $("<a>").attr("data-toggle","collapse").attr("href","#single_charts").text("Single Household statistics")
-        )
-    ));
-    single_panel.append($("<div>",{id:"single_charts"}).addClass("panel-collapse").addClass("collapse").append(
-        $("<div>",{id:"single_charts_body"}).addClass("panel-body")
-    ));
-    panel_group.append(single_panel);
-    
-    var child_panel = $("<div>").addClass("panel panel-default");
-    child_panel.append($("<div>").addClass("panel-heading").append(
-        $("<h3>").addClass("panel-title").append(
-            $("<a>").attr("data-toggle","collapse").attr("href","#child_charts").text("Household with Child statistics")
-        )
-    ));
-    child_panel.append($("<div>",{id:"child_charts"}).addClass("panel-collapse").addClass("collapse").append(
-        $("<div>",{id:"child_charts_body"}).addClass("panel-body")
-    ));
-    panel_group.append(child_panel);
-    
-    $("#datasheet").append(panel_group);
-    
-    $("#datasheet").append($("<div>",{id:"ds_tables"}).addClass("collapse"));
-    */
-    
-    showDataSheet();
-    
-    $(".collapse").collapse("show");
+    $("#datasheet .collapse").collapse("show");
     
     $('.navbar li.active').removeClass('active');
     $("#datasheet_tab").parent().addClass('active');
@@ -109,7 +67,7 @@ function queryDataSheet(uri) {
     },
     function(data) {
         visualizeDataSheet(data);
-        //$(".collapse").collapse("hide");
+        $("#datasheet .collapse").collapse("hide");
     });
 }
 

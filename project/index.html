@@ -13,7 +13,7 @@
 <body>
 
 	<div class="content">
-		<div class="navbar navbar-inverse" role="navigation">
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -77,9 +77,9 @@
 		<div id="content-container" class="col-xs-9 fill-height nopadding">
 			<div id="map"></div>
 			<div id="voc"></div>
-			<div id="datasheet">
+			<div id="datasheet" class="conatainer">
 				<h1 id="sheet_title"></h1>
-				<div class="panel-group">
+				<div id="data_panel" class="panel-group">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h3 class="panel-title"><a data-toggle="collapse" href="#ds_charts">General statistics</a></h3>
@@ -128,8 +128,10 @@
 				<div id="ds_tables" class="collapse"></div>
 			</div>
 		</div>
-		<button id="sidebar-toggle" class="btn btn-primary sidebar-toggle-button"><span class="glyphicon glyphicon-menu-left"></span></button>
+		
 	</div>
+	<button id="sidebar-toggle" class="btn btn-primary sidebar-toggle-button"><span class="glyphicon glyphicon-menu-left"></span></button>
+	<button id="bottombar-toggle" class="btn btn-primary bottombar-toggle-button"><span class="glyphicon glyphicon-menu-up"></span></button>
 
 	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<!-- <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script> -->
@@ -157,8 +159,27 @@
 		});
 		
 		
+		function showBottomMenu() {
+			hideSidebar();
+			$("#bottombar-toggle").css("bottom","41.5%").show();
+			$("#bottombar-toggle span").removeClass("glyphicon-menu-up").addClass("glyphicon-menu-down");
+			$("#datasheet").show();
+			$("#map").css("height","55%");
+			map.invalidateSize();
+		}
 		
-		
+		function hideBottomMenu(withButton) {
+			if (withButton) {
+				$("#bottombar-toggle").hide();
+			} else {
+				$("#bottombar-toggle").css("bottom","0%").show();
+			}
+			
+			$("#bottombar-toggle span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-up");
+			$("#datasheet").hide();
+			$("#map").css("height","100%");
+			map.invalidateSize();
+		}
 		
 		function hideSidebar(withButton) {
 			if (withButton) {
@@ -181,7 +202,7 @@
 		}
 		
 		function showSidebar() {
-			$("#sidebar-toggle span").removeClass("glyphicon-menu-right").addClass("glyphicon-menu-left")
+			$("#sidebar-toggle span").removeClass("glyphicon-menu-right").addClass("glyphicon-menu-left");
 			$("#sidebar-toggle").css("left","25%").show();
 			
 			//$('#sidebar-container').show("slide",{direction:"left"},300);
@@ -193,12 +214,13 @@
 		
 		function showDocumentation() {
 			hideMap();
-			hideDataSheet();
+			//hideDataSheet();
+			hideBottomMenu(true);
 			$('#voc').show();
 		}
 		
 		function showMap() {
-			hideDataSheet();
+			//hideDataSheet();
 			hideDocumentation();
 			showSidebar();
 			
@@ -228,6 +250,14 @@
 				showSidebar();
 			} else {
 				hideSidebar(false);
+			}
+		});
+		
+		$("#bottombar-toggle").click(function (e) {
+			if ($("#datasheet").css("display") == "none") {
+				showBottomMenu();
+			} else {
+				hideBottomMenu(false);
 			}
 		});
 	</script>
