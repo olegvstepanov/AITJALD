@@ -79,9 +79,11 @@
 			<div id="voc"></div>
 			<div id="datasheet"></div>
 		</div>
+		<button id="sidebar-toggle" class="btn btn-primary sidebar-toggle-button"><span class="glyphicon glyphicon-menu-left"></span></button>
 	</div>
 
 	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<!-- <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script> -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
 	<script src="https://cdn.rawgit.com/arthur-e/Wicket/master/wicket.js"></script>
@@ -105,11 +107,39 @@
 		    e.preventDefault();
 		});
 		
-		function hideMap() {
-			$('#map').hide();
+		
+		
+		
+		
+		function hideSidebar(withButton) {
+			if (withButton) {
+				$("#sidebar-toggle").hide();
+			} else {
+				$("#sidebar-toggle").css("left","0%").show();
+			}
+			$("#sidebar-toggle span").removeClass("glyphicon-menu-left").addClass("glyphicon-menu-right");
+			
+			//$('#sidebar-container').hide("slide",{direction:"left"},300);
 			$('#sidebar-container').hide();
 			$('#content-container').removeClass('col-xs-9');
 			$('#content-container').addClass('col-xs-12');
+			map.invalidateSize();
+		}
+		
+		function hideMap() {
+			$('#map').hide();
+			hideSidebar(true);
+		}
+		
+		function showSidebar() {
+			$("#sidebar-toggle span").removeClass("glyphicon-menu-right").addClass("glyphicon-menu-left")
+			$("#sidebar-toggle").css("left","25%").show();
+			
+			//$('#sidebar-container').show("slide",{direction:"left"},300);
+			$('#sidebar-container').show();
+			$('#content-container').removeClass('col-xs-12');
+			$('#content-container').addClass('col-xs-9');
+			map.invalidateSize();
 		}
 		
 		function showDocumentation() {
@@ -121,11 +151,11 @@
 		function showMap() {
 			hideDataSheet();
 			hideDocumentation();
-			$('#sidebar-container').show();
-			$('#content-container').removeClass('col-xs-12');
-			$('#content-container').addClass('col-xs-9');
+			showSidebar();
 			$('#map').show();
 		}
+		
+		
 		
 		function hideDocumentation() {
 			$('#voc').hide();
@@ -142,6 +172,13 @@
 		};
 		
 		$("#data_sheet_toggle").prop("checked",false);
+		$("#sidebar-toggle").click(function (e) {
+			if ($("#sidebar-container").css("display") == "none") {
+				showSidebar();
+			} else {
+				hideSidebar(false);
+			}
+		});
 	</script>
 	<script src="js/doc.js"></script>
 	<script src="js/map.js"></script>

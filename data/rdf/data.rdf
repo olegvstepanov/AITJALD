@@ -1547,7 +1547,7 @@
                     <lodcom:touches rdf:resource="http://vocab.lodcom.de/gremmendorf-west"/>
                     <geo:sfTouches rdf:resource="http://vocab.lodcom.de/schuetzenhof"/>
                     <lodcom:touches rdf:resource="http://vocab.lodcom.de/hafen"/>
-                    <rdfs:label xml:lang="en">Berg_Fidel</rdfs:label>
+                    <rdfs:label xml:lang="en">Berg Fidel</rdfs:label>
                     <lodcom:touches rdf:resource="http://vocab.lodcom.de/hiltrup-ost"/>
                     <geo:sfTouches rdf:resource="http://vocab.lodcom.de/gremmendorf-west"/>
                     <lodcom:upperAdministrativeLevel rdf:resource="http://vocab.lodcom.de/hiltrup"/>
