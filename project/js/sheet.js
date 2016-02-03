@@ -50,7 +50,9 @@ QUERY_DATASHEET = "SELECT DISTINCT ?dataSet ?dataSetName ?district ?year ?sex ?a
 
 function queryDataSheet(uri) {
 
-    $("#datasheet").empty();
+    $("#datasheet .panel-body").empty();
+    
+    /*
     $("#datasheet").append($("<h1>",{id:"sheet_title"}));
     
     var panel_group = $("<div>").addClass("panel-group");
@@ -92,6 +94,8 @@ function queryDataSheet(uri) {
     $("#datasheet").append(panel_group);
     
     $("#datasheet").append($("<div>",{id:"ds_tables"}).addClass("collapse"));
+    */
+    
     showDataSheet();
     
     $(".collapse").collapse("show");

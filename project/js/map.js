@@ -183,6 +183,7 @@ function addPopupToLayer() {
     });
 }
 
+//TODO remove this part as is no longer used
 function addWktToMap(wktstring, name, population, col) {
     //console.log(wktstring, name, population, col);
     //console.log(name);
@@ -236,21 +237,49 @@ function mouseOutHandler(e) {
     // info.update();
 }
 
-function postQuery(qry, func) {
+function postQuery(qry, callback) {
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: qry,
         output: 'json'
     },
-    func
+    callback
     );
 }
 
 function createDistrictAndParentChart(name) {
     return function(e){
-        var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. ?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
-        var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> { ?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  FILTER (lang(?catname) = 'en')}}";
-        addDataToPieChart(name, qryDistrict, "district-container");
-        addDataToPieChart(name, qryParent, "parent-container");
+        var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> "
+            + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
+            + "PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> "
+            + "PREFIX qb: <http://purl.org/linked-data/cube#> "
+            + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+            + "SELECT ?name ?n ?wkt ?catname "
+            + "WHERE { "
+            + "GRAPH <http://course.introlinkeddata.org/G4> { "
+                + "lodcom:"+name.toLowerCase()+" lodcom:upperAdministrativeLevel ?parent. "
+                + "?parent rdfs:label ?name. ?obs lodcom:refArea ?parent . "
+                + "?obs qb:dataSet ?category . ?category rdfs:label ?catname . "
+                + "?obs lodcom:numberOfHouseholds ?n . "
+                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> "
+                + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+                            
+        var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> "
+            + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
+            + "PREFIX qb: <http://purl.org/linked-data/cube#> "
+            + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+            + "SELECT ?n ?catname "
+            + "WHERE { "
+            + "GRAPH <http://course.introlinkeddata.org/G4> { "
+                + "?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . "
+                + "?obs qb:dataSet ?category . ?category rdfs:label "
+                + "?catname . ?obs lodcom:numberOfHouseholds ?n ."
+                + " ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>  "
+                + "FILTER (lang(?catname) = 'en')}}";
+        $("#parent_charts_body").append($("<div>",{id: "distr_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
+        $("#parent_charts_body").append($("<div>",{id: "parent_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
+        
+        addDataToPieChart(name, qryDistrict, "distr_chart");
+        addDataToPieChart(name, qryParent, "parent_chart");
     };
 }
 
@@ -262,7 +291,7 @@ function addDataToPieChart(name, qry, id) {
                     name: binding.catname.value
                 };
             });
-            addChartDiv("#sidebar-container", id);
+            //addChartDiv("#sidebar-container", id);
             createPieChart(name, chartData, id);
         });
 }
@@ -307,18 +336,33 @@ function addChartDiv(whereId, whatId) {
 
 function createNeighborsChart(name) {
     return function(e) {
-        var qryNeighborAllCateg = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?catname WHERE { GRAPH <http://course.introlinkeddata.org/G4> {lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet ?category . ?category rdfs:label ?catname . ?obs lodcom:numberOfHouseholds ?n . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+        var qryNeighborAllCateg = "PREFIX lodcom: <http://vocab.lodcom.de/> "
+            + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
+            + "PREFIX qb: <http://purl.org/linked-data/cube#> "
+            + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+            + "SELECT ?name ?n ?catname "
+            + "WHERE { "
+                + "GRAPH <http://course.introlinkeddata.org/G4> {"
+                    + "lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. "
+                    + "?neighbor rdfs:label ?name. "
+                    + "?obs lodcom:refArea ?neighbor . "
+                    + "?obs qb:dataSet ?category . "
+                    + "?category rdfs:label ?catname . "
+                    + "?obs lodcom:numberOfHouseholds ?n . "
+                    + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . "
+                    + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+                    
         postQuery(qryNeighborAllCateg, function(data) {
             var chartData = {};
             for (var i in data.results.bindings) {
                 var categ = data.results.bindings[i].catname.value;
                 var popul = parseInt(data.results.bindings[i].n.value);
-                var distr = data.results.bindings[i].name.value
+                var distr = data.results.bindings[i].name.value;
                 if (!(categ in chartData)){
-                    chartData[categ] = [{y : popul, label: distr}]
+                    chartData[categ] = [{y : popul, label: distr}];
                 }
                 else {
-                    chartData[categ].push({y : popul, label: distr})
+                    chartData[categ].push({y : popul, label: distr});
                 }
             }
             var chartContent = [];
@@ -332,14 +376,16 @@ function createNeighborsChart(name) {
                 };
                 chartContent.push(oneCategWithLegend);
             }
-            addChartDiv("#content-container", "neighbor-container");
+            //addChartDiv("#content-container", "neighbor-container");
             createBarChart(chartContent);
         });
     };
 }
 
 function createBarChart(chartContent) {
-    var chart = new CanvasJS.Chart("neighbor-container", {
+    $("#neighbor_charts_body").append($("<div>",{id:"neigh_chart"}).css("height","300px").css("width","70%"));
+    
+    var chart = new CanvasJS.Chart("neigh_chart", {
         title:{
             text:"Neighbor districts households in " + currentYear
         },
@@ -368,104 +414,7 @@ function createBarChart(chartContent) {
     chart.render();
 }
 
-
-    //older version with query for each category of households
-
-    // function createClickHandler(name) {
-    //     return function(e) {
-    //         var categories = ["SingleHouseholdTotalCount", "TwoPersonsHouseholdCount", "ThreePersonsHouseholdCount", "FourPersonsHouseholdCount", "FivePersonsMoreHouseholdCount"];
-    //         var chartContent = [];
-    //         categories.forEach(function(category) {
-    //             var qryDiffCategory = "PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX geo: <http://www.opengis.net/ont/geosparql#> PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> PREFIX qb: <http://purl.org/linked-data/cube#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?name ?n ?wkt WHERE { GRAPH <http://course.introlinkeddata.org/G4> { lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. ?neighbor rdfs:label ?name. ?obs lodcom:refArea ?neighbor . ?obs qb:dataSet lodcom:"+category+" . ?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . ?obs sdmx-measure:obsValue ?n . ?neighbor geo:hasGeometry ?geometry . ?geometry geo:asWKT ?wkt FILTER (lang(?name) = 'en')}}";
-    //             var oneCategWithLegend = {
-    //                 type: "stackedBar",
-    //                 showInLegend: true,
-    //                 name: category,
-    //                 axisYType: "secondary"
-    //             };
-    //             postQuery(qryDiffCategory, function (data){
-    //                 var allDistrOneCateg = data.results.bindings.map(function(binding) {
-    //                     return {
-    //                         y: parseInt(binding.n.value),
-    //                         label: binding.name.value
-    //                     };
-    //                 });
-    //                 oneCategWithLegend.dataPoints = allDistrOneCateg;
-    //                 chartContent.push(oneCategWithLegend);
-    //             });
-    //         });
-    //         addChartDiv();
-    //         window.chartContent = chartContent;
-    //         $(document).ajaxStop(function () {
-    //             createBarChart(chartContent);
-    //         });
-            
-    //         function addChartDiv() {
-    //             $("#sidebar-container").append('<div id="chartContainer"></div>')
-    //         }
-
-    //         function createBarChart(chartContent) {
-    //             var chart = new CanvasJS.Chart("chartContainer", {
-    //                 title:{
-    //                     text:"Neighbor districts households " + currentYear
-    //                 },
-    //                 animationEnabled: true,
-    //                 axisX:{
-    //                     interval: 1,
-    //                     gridThickness: 0,
-    //                     labelFontSize: 10,
-    //                     labelFontStyle: "normal",
-    //                     labelFontWeight: "normal",
-    //                     labelFontFamily: "Lucida Sans Unicode"
-    //                 },
-    //                 axisY2:{
-    //                     interlacedColor: "rgba(1,77,101,.2)",
-    //                     gridColor: "rgba(1,77,101,.1)"
-    //                 },
-    //                 toolTip: {
-    //                     shared: true
-    //                 },
-    //                 legend:{
-    //                     verticalAlign: "top",
-    //                     horizontalAlign: "center"
-    //                 },
-    //                 data: chartContent
-    //             });
-    //             chart.render();
-    //         }
-    //     }
-    // }
-//}
-
 year(2011);
-
-
-
-// old version - displaying info in controls
-// var info = L.control();
-// var stat = document.getElementById("stat");
-
-// info.onAdd = function (map) {
-//     this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-//     this.update();
-//     return this._div;
-// };
-
-// info.update = function (name, pop) {
-//     if (name){
-//         this._div.innerHTML = '<h4>Households</h4>' + '<b>' + name + '</b><br />' + pop + ' households';
-//     }
-//     else {
-//         this._div.innerHTML = '<h4>Households</h4>' + 'Hover over a polygon to see number of households.'+'<br />'+'Click to see stats for neighbors.';
-//     }
-// };
-
-// info.stat = function () {
-//         this._div.innerHTML = this._div.innerHTML + '<div id="chartContainer"></div>' //add chart to div
-// };
-
-// info.addTo(map);
-
 
 
 $('#dataset').on('change', function(){
