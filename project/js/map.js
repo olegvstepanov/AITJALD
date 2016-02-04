@@ -33,9 +33,17 @@ $('#map_tab').on('click', function(){
 
 var currentYear = 2011;
 
+var info = L.control();
+
+
 var showThis = "Stadtteil";
 map.on('zoomend', function () {
     console.log(map.getZoom());
+    try {
+        info.removeFrom(map);
+    } catch(e){
+    }
+
     if (map.getZoom() >= 12){
         if(showThis == "Stadtbezirk") {
             showThis = "Stadtteil";
@@ -131,10 +139,22 @@ function bindMouseEvents(districtObj, name) {
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
             }
-            var polygonCenter = layer.getBounds().getCenter();
-            L.popup({autoPan:false, closeButton:false}).setLatLng(polygonCenter).setContent(name).openOn(map);
+
+            info.setPosition("topright").addTo(map);
+            info.update(name);
         }
     }
+
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    }
+    info.update = function (name) {
+        if (name){
+            this._div.innerHTML = '<h4>'+showThis+'</h4>' + '<b>' + name + '</b><br />';
+        }
+    };
 
     function mouseOutHandler(e) {
         var layer = e.target;
@@ -145,6 +165,10 @@ function bindMouseEvents(districtObj, name) {
             opacity: 1,
             fillOpacity: 0.9
         });
+        try {
+            info.removeFrom(map);
+        } catch(e){
+        }
     }
 
     function postQuery(qry, func) {
@@ -286,9 +310,6 @@ function bindMouseEvents(districtObj, name) {
         }
     }
 }
-
-year(2011);
-
 
 
 $('#dataset').on('change', function(){
