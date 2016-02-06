@@ -33,8 +33,8 @@ $('#map_tab').on('click', function(){
 
 var currentYear = 2011;
 
-var info = L.control();
-
+var info = L.control(),
+    legend = L.control();
 
 var showThis = "Stadtteil";
 map.on('zoomend', function () {
@@ -88,7 +88,7 @@ function year(y) {
 					+ "?geometry geo:asWKT ?wkt. "
 					+ "FILTER(lang(?name) = 'en') "
 				+ "}"
-			+ "}";
+			+ "} ORDER BY ?n";
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: qry,
         output: 'json'
@@ -96,10 +96,16 @@ function year(y) {
     function(data){
         // console.log(data);
         processBindings(data);
+        //updateLegend();
     });
     currentYear = y;
 }
 
+/*
+    Find the minimum and maximum data value (nr. of households) in a SPARQL result
+
+    The property that is checked is "?n"
+*/
 function minmax(data) {
     var min = parseInt(data.results.bindings[0].n.value);
     var max = parseInt(data.results.bindings[0].n.value);
@@ -117,6 +123,14 @@ function minmax(data) {
 var colorScale;
 var gjlayer;
 
+/*
+    After querying the SPARQL endpoint data further processing is done from here
+    - update the geojson layer
+    - calculate new colors for display
+    - calculate new entries for legend
+    - populate data sheet
+    ...
+*/
 function processBindings(data) {
     // map.removeLayer(featureGroup);
     // featureGroup = L.featureGroup();
@@ -124,9 +138,9 @@ function processBindings(data) {
     
     var mm = minmax(data);    
     colorScale = chroma.scale(chroma.brewer.OrRd).domain(mm, 'log');
-    
+    updateLegend(mm);
+
     var collection = parseToGeoJSONFeatureCollection(data);
-    //console.log(collection);
     
     gjlayer = L.geoJson(collection, {
         style: styleFeature,
@@ -251,6 +265,41 @@ info.update = function (name) {
         this._div.innerHTML = '<h4>'+showThis+'</h4>' + '<b>' + name + '</b><br />';
     }
 };
+
+/*
+    Takes the min/max values of the current data and adds 5 entries to the legend
+
+    minmax must be an array, i.e. [minValue, maxValue]
+*/
+function updateLegend(minmax) {
+    try { map.removeControl(legend); } catch(e) {}
+    legend = L.control({position: 'bottomright'});
+
+    var intermediateSteps = [];
+    for(var i=0; i<=5; i++){
+        var step = minmax[0]+Math.floor((minmax[1]-minmax[0])/5)*i;
+        intermediateSteps.push(step);
+    }
+    // sort numbers in descending order
+    intermediateSteps.sort(function(a, b){
+        return b-a;
+    });
+
+    legend.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'info legend');
+        var labels = [];
+        intermediateSteps.forEach(function(dataValue, index, array){
+            try{
+                labels.push('<i style="background:' + colorScale(dataValue) + '"></i>' + dataValue);
+            } catch(e) {
+                // not a feature with 'n' (number of households) property
+            }
+        });
+        div.innerHTML = labels.join('<br/>');
+        return div;
+    };
+    legend.addTo(map);
+}
 
 function mouseOutHandler(e) {
     var layer = e.target;
