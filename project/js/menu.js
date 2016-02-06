@@ -100,20 +100,24 @@ function populateYearAndGenderSelection(data) {
 				$(optionAge).html(range.value);
 				$('select#datasetage').append(optionAge);
 			}
+
 			// time periods (years)
 			if(data.results.bindings[i].refPeriods){
 				var period = data.results.bindings[i].refPeriods;
 
+				// filter just the year from the URI
 				var year = period.value.match(/\/(\d{4})-01-01T/)[1];
 
 				// do not insert duplicate entries
 				if($('select#datasetyear option[value="'+period.value+'"]').length===0) {
 					var optionYear = $("<option></option>");
-					$(optionYear).attr('value', period.value);
+					$(optionYear).attr('value', year);
+					$(optionYear).attr('data-uri', period.value);
 					$(optionYear).html(year);
 					$('select#datasetyear').append(optionYear);
 				}
 			}
+
 			// gender
 			if(data.results.bindings[i].gender){
 				var gender = data.results.bindings[i].gender;
@@ -144,6 +148,14 @@ $('select#dataset').on('change', function(e){
 		queryDataSubsets(countType);
 		$('select#dataset option.disabled').attr('disabled', 'disabled');
 	}
+});
+
+$('button#mapTheData').on('click', function(){
+	// see also map.js
+	showThis.year = $('select#datasetyear').val();
+	showThis.agegroup = $('select#datasetage').val();
+	showThis.gender = $('select#datasetgender').val();
+	mapData();
 });
 
 queryDatasets();

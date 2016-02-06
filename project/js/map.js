@@ -36,7 +36,16 @@ var currentYear = 2011;
 var info = L.control(),
     legend = L.control();
 
-var showThis = "Stadtteil";
+// set some default variables
+// by default load single house hold total count from 2011 
+var showThis = {
+    area: "Stadtteil",
+    year: 2011,
+    dataset: "SingleHouseholdTotalCount",
+    gender: "female",
+    agegroup: "AgeRange_20_29"
+}
+
 map.on('zoomend', function () {
     //console.log(map.getZoom());
     try {
@@ -45,19 +54,19 @@ map.on('zoomend', function () {
     }
 
     if (map.getZoom() >= 12){
-        if(showThis == "Stadtbezirk") {
-            showThis = "Stadtteil";
-            year(currentYear);
+        if(showThis.area == "Stadtbezirk") {
+            showThis.area = "Stadtteil";
+            mapData(currentYear);
         }
     } else {
-        if(showThis == "Stadtteil") {
-            showThis = "Stadtbezirk";
-            year(currentYear);
+        if(showThis.area == "Stadtteil") {
+            showThis.area = "Stadtbezirk";
+            mapData(currentYear);
         }
     }
 });
 
-function year(y) {
+function mapData(y) {
 	   var qry = "PREFIX afn: <http://jena.hpl.hp.com/ARQ/function#> "
 			+ "PREFIX fn: <http://www.w3.org/2005/xpath-functions#> "
 			+ "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
@@ -76,13 +85,13 @@ function year(y) {
 			+ "WHERE { "
 			+ "GRAPH <http://course.introlinkeddata.org/G4> "
 				+ "{"
-					+ "?bezirk rdf:type lodcom:"+showThis+" . "
+					+ "?bezirk rdf:type lodcom:"+showThis.area+" . "
 					+ "?bezirk <http://www.w3.org/2000/01/rdf-schema#label> ?name . "
 					+ "?id <http://www.w3.org/2000/01/rdf-schema#label> ?name . "
-					+ "?obs <http://purl.org/linked-data/cube#dataSet> lodcom:SingleHouseholdTotalCount . "
+					+ "?obs <http://purl.org/linked-data/cube#dataSet> lodcom:"+showThis.dataset+" . "
 					+ "?obs <http://vocab.lodcom.de/numberOfHouseholds> ?num . "
 					+ "?obs lodcom:refArea ?bezirk . "
-					+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+y+"-01-01T00:00:00/P1Y> . "
+					+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> . "
 					+ "?obs <http://purl.org/linked-data/sdmx/2009/measure#obsValue> ?n . "
 					+ "?bezirk geo:hasGeometry ?geometry . "
 					+ "?geometry geo:asWKT ?wkt. "
@@ -94,7 +103,7 @@ function year(y) {
         output: 'json'
     },
     function(data){
-        // console.log(data);
+        //console.log(data);
         processBindings(data);
         //updateLegend();
     });
@@ -262,7 +271,7 @@ info.onAdd = function (map) {
 
 info.update = function (name) {
     if (name){
-        this._div.innerHTML = '<h4>'+showThis+'</h4>' + '<b>' + name + '</b><br />';
+        this._div.innerHTML = '<h4>'+showThis.area+'</h4>' + '<b>' + name + '</b><br />';
     }
 };
 
@@ -519,14 +528,5 @@ function createBarChart(chartContent) {
     chart.render();
 }
 
-
-$('#dataset').on('change', function(){
-
-});
-
-$('#datasetyear').on('change', function(){
-
-});
-
-year(2011);
+mapData(2011);
 
