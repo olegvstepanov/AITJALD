@@ -33,9 +33,17 @@ $('#map_tab').on('click', function(){
 
 var currentYear = 2011;
 
+var info = L.control();
+
+
 var showThis = "Stadtteil";
 map.on('zoomend', function () {
     //console.log(map.getZoom());
+    try {
+        info.removeFrom(map);
+    } catch(e){
+    }
+
     if (map.getZoom() >= 12){
         if(showThis == "Stadtbezirk") {
             showThis = "Stadtteil";
@@ -191,8 +199,10 @@ function addWktToMap(wktstring, name, population, col) {
     //var rgb = "rgb("+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+")"; // random colour
     //colourScale(Math.floor(Math.random()*255))
     var districtObj = wkt.toObject({
-        color: col,
-        weight: 1,
+        fillColor: col,
+        color: '#87421F',
+        dashArray: '',
+        weight: 0.5,
         opacity: 1,
         fillOpacity: 0.9
     });
@@ -217,24 +227,44 @@ function createMouseOverHandler(name) {
         var layer = e.target;
         layer.setStyle({
             weight: 5,
+                //color: '#666',
             dashArray: '',
             fillOpacity: 0.4
         });
         if (!L.Browser.ie && !L.Browser.opera) {
             layer.bringToFront();
         }
-        // info.update(name, population);
+
+            info.setPosition("topright").addTo(map);
+            info.update(name);
     };
 }
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
+
+info.update = function (name) {
+    if (name){
+        this._div.innerHTML = '<h4>'+showThis+'</h4>' + '<b>' + name + '</b><br />';
+    }
+};
 
 function mouseOutHandler(e) {
     var layer = e.target;
     layer.setStyle({
-        weight: 1,
+            //color: '#87421F',
+            dashArray: '',
+            weight: 0.5,
         opacity: 1,
         fillOpacity: 0.9
     });
-    // info.update();
+        try {
+            info.removeFrom(map);
+        } catch(e){
+        }
 }
 
 function postQuery(qry, callback) {
@@ -265,7 +295,7 @@ function createDistrictAndParentChart(name) {
                 + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> "
                 + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
                 + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en') "
-                + "}}";
+                + "}} ORDER BY ASC(?catname)";
                             
         var qryDistrict = "PREFIX lodcom: <http://vocab.lodcom.de/> "
             + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
@@ -281,7 +311,7 @@ function createDistrictAndParentChart(name) {
                 + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>.  "
                 + "FILTER (lang(?catname) = 'en') "
                 + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
-                + "}}";
+                + "}}  ORDER BY ASC(?catname)";
         $("#parent_charts_body").append($("<div>",{id: "distr_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
         $("#parent_charts_body").append($("<div>",{id: "parent_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
         
@@ -292,25 +322,26 @@ function createDistrictAndParentChart(name) {
 
 function addDataToPieChart(name, qry, id) {
         postQuery(qry, function(data) {
-            var currentName =name;
-            if (data.results.bindings[0].name) {
-                var currentName = data.results.bindings[0].name.value;
-            }
-
-             var chartData = data.results.bindings.map(function(binding) {
-                return {
-                    y : parseInt(binding.n.value),
-                    name: binding.catname.value
-                };
-            });
+                var currentName =name;
+                if (data.results.bindings[0].name) {
+                    var currentName = data.results.bindings[0].name.value;
+                }
+                var chartData = data.results.bindings.filter(
+                    function(binding){
+                        return binding.catname.value.split(" ").length > 5;
+                    }).map(function(binding) {
+                        return {
+                            y : parseInt(binding.n.value),
+                            name: binding.catname.value
+                        };
+                 });
             //addChartDiv("#sidebar-container", id);
             createPieChart(currentName, chartData, id);
         });
 }
 
-function createPieChart(name, chartData, id) {
-    var chart = new CanvasJS.Chart(id,
-    {
+    function createPieChart(name, chartData, id, title) {
+        var chart = new CanvasJS.Chart(id,{
         title:{
             text: "Households distribution in "+name,
             fontFamily: "arial black"
@@ -324,8 +355,8 @@ function createPieChart(name, chartData, id) {
         data: [
         {        
             type: "pie",
-            indexLabelFontFamily: "Garamond",       
-            indexLabelFontSize: 16,
+                indexLabelFontFamily: "Lucida Sans Unicode",       
+                indexLabelFontSize: 12,
             indexLabelFontWeight: "bold",
             startAngle:0,
             indexLabelFontColor: "MistyRose",       
@@ -339,44 +370,57 @@ function createPieChart(name, chartData, id) {
         ]
     });
     chart.render();
-    chart = {}; //trying to place two pie charts at the same time
 }
 
 function addChartDiv(whereId, whatId) {
-    $(whereId).append('<div id='+whatId+'></div>');
+        $(whereId).append('<div id='+whatId+'></div></br>')
 }
 
 function createNeighborsChart(name) {
     return function(e) {
         var qryNeighborAllCateg = "PREFIX lodcom: <http://vocab.lodcom.de/> "
-            + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
-            + "PREFIX qb: <http://purl.org/linked-data/cube#> "
-            + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-            + "SELECT ?name ?n ?catname "
-            + "WHERE { "
-                + "GRAPH <http://course.introlinkeddata.org/G4> {"
-                    + "lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. "
-                    + "?neighbor rdfs:label ?name. "
-                    + "?obs lodcom:refArea ?neighbor . "
-                    + "?obs qb:dataSet ?category . "
-                    + "?category rdfs:label ?catname . "
-                    + "?obs lodcom:numberOfHouseholds ?n . "
-                    + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . "
-                    + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')}}";
+			+ "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
+			+ "PREFIX qb: <http://purl.org/linked-data/cube#> "
+			+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+			+ "SELECT ?name ?n ?catname "
+			+ "WHERE { "
+			+ "GRAPH <http://course.introlinkeddata.org/G4> {"
+				+ "{"
+						+ "lodcom:"+name.toLowerCase()+" lodcom:touches ?neighbor. "
+						+ "?neighbor rdfs:label ?name. "
+						+ "?obs lodcom:refArea ?neighbor . "
+						+ "?obs qb:dataSet ?category . "
+						+ "?category rdfs:label ?catname . "
+						+ "?obs lodcom:numberOfHouseholds ?n . "
+						+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . "
+						+ "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')"
+				+ "} UNION {"
+						+ "lodcom:"+name.toLowerCase()+" rdfs:label ?name. "
+						+ "?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . "
+						+ "?obs qb:dataSet ?category . "
+						+ "?category rdfs:label ?catname . "
+						+ "?obs lodcom:numberOfHouseholds ?n . "
+						+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . "
+						+ "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')"
+				+ "}"
+			+ "}} ORDER BY ASC(?catname)";
                     
         postQuery(qryNeighborAllCateg, function(data) {
+                console.log(data.results.bindings);
             var chartData = {};
             for (var i in data.results.bindings) {
                 var categ = data.results.bindings[i].catname.value;
                 var popul = parseInt(data.results.bindings[i].n.value);
-                var distr = data.results.bindings[i].name.value;
-                if (!(categ in chartData)){
-                    chartData[categ] = [{y : popul, label: distr}];
+                    var distr = data.results.bindings[i].name.value;
+                    if (categ.split(" ").length>5){
+                        if (!(categ in chartData)){
+                            chartData[categ] = [{y : popul, label: distr}]
+                        }
+                        else {
+                            chartData[categ].push({y : popul, label: distr})
+                        }
+                    }
                 }
-                else {
-                    chartData[categ].push({y : popul, label: distr});
-                }
-            }
             var chartContent = [];
             for (var category in chartData) {
                 var oneCategWithLegend = {
@@ -411,22 +455,20 @@ function createBarChart(chartContent) {
             labelFontFamily: "Lucida Sans Unicode"
         },
         axisY2:{
-            interlacedColor: "rgba(1,77,101,.2)",
+                        // interlacedColor: "rgba(1,77,101,.2)",
             gridColor: "rgba(1,77,101,.1)"
         },
         toolTip: {
             shared: true
         },
         legend:{
-            verticalAlign: "top",
+                        verticalAlign: "bottom",
             horizontalAlign: "center"
         },
         data: chartContent
     });
     chart.render();
 }
-
-year(2011);
 
 
 $('#dataset').on('change', function(){
