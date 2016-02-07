@@ -8,6 +8,8 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 	<link rel="stylesheet" href="css/map.css" />
+	<!--<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="screen">-->
+	<link rel="stylesheet" href="css/style.css" type="text/css" media="screen">
 
 </head>
 <body>
@@ -29,6 +31,7 @@
 						<li class="active"><a href="#" id="map_tab">Map</a></li>
 						<!--<li><a href="#" id="datasheet_tab">Data Sheet</a></li>-->
 						<li><a href="#" id="voc_tab">Vocabulary</a></li>
+						<li><a href="#" class="help btn"> Help Tour ?</a></li>
 					</ul>
 				</div><!--/.nav-collapse -->
 			</div>
@@ -65,13 +68,16 @@
 					<!-- populated in menu.js -->
 				</select>
 				</div>
-	
-				<button class="btn btn-info" id="mapTheData" type="button">Show me</button>
+				
+					<button class="btn btn-info" id="mapTheData" type="button">Show me</button>
+				
 				<br/>
 				<br/>
+				<div id ="button_datasheet">
 				<label class="btn btn-primary">
 				    <input id="data_sheet_toggle" type="checkbox"> Data Sheet for District
 				</label>
+				</div>
 			</form>
 		</div>
 		<div id="content-container" class="col-xs-9 fill-height nopadding">
@@ -142,6 +148,8 @@
 	<script src="https://cdn.rawgit.com/arthur-e/Wicket/master/wicket-leaflet.js"></script>
 	<script src="https://rawgit.com/gka/chroma.js/master/chroma.min.js"></script>
 	<script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+	<!--<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>-->
+	
 	<script>
 
 		// global variables / flags
@@ -302,9 +310,71 @@
 		
 		});
 	</script>
+<script type="text/javascript">
+	      $('.help').click(function() {
+	        $('.content').concierge({
+	          steps: [
+  	            {
+  	              element:$('.navbar-brand:first'),
+  	              title:"Guide for Haushalte Münster",
+  	              content:"Here we start our help guide for analysing  Haushalte Münster",
+  	              placement:'bottom'
+  	            },
+	            {
+	              element:$('#map_tab'),
+	              title: "Here you look for Map",
+	              content: "Interactive Map of Münster with option to analyse data  ",
+	              placement:'bottom'
+	            },
+	            /*
+  	            {
+  	              element:$('#datasheet_tab'),
+  	              title:"Here you look for Data",
+  	              content:"This help in navagating to the data of interested  area by selecting on the map.",
+  	              placement:'bottom'
+  	            },
+  	            */
+  	            {
+  	              element:$('#voc_tab'),
+  	              title:"Here you look for Vocabulary",
+  	              content:"This help in navagating to the all the Vocabularies used in the Project.",
+  	              placement:'bottom'
+  	            },
+  	            {
+  	              element:$('.form-group:first'),
+  	              title:"Here you look for Data Set of your Interest",
+  	              content:"You can search for the data of your interest using filters",
+  	              placement:'right'
+  	            },
+  	            {
+  	              element:$('#mapTheData'),
+  	              title:"Click on Show Me ",
+  	              content:"View data on the map, based on your interest using filters",
+  	              placement:'right'
+  	            },
+  	            {
+  	              element:$('#button_datasheet'),
+  	              title:"Click to check the option",
+  	              content:"Check the button and click district over the map to visualize the data summary.",
+  	              placement:'right'
+  	            },
+				
+	          ],
+	          afterAll: function() {
+	            alert('Tour completed')
+	          },
+	          nextEvent: "click",
+	          nextText: "<br/><br/><b>Continue</b>",
+	          debug: true
+	        });
+	        return false
+	      });      
+</script>
 	<script src="js/doc.js"></script>
 	<script src="js/map.js"></script>
 	<script src="js/sheet.js"></script>
 	<script src="js/menu.js"></script>
+	<script src="js/jquery.concierge.js" type="text/javascript" charset="utf-8"></script>
+	
 </body>
 </html>

@@ -254,7 +254,6 @@ function createMouseOverHandler(name) {
         var layer = e.target;
         layer.setStyle({
             weight: 5,
-                //color: '#666',
             dashArray: '',
             fillOpacity: 0.4
         });
@@ -461,7 +460,6 @@ function createNeighborsChart(name) {
 			+ "}} ORDER BY ASC(?catname)";
                     
         postQuery(qryNeighborAllCateg, function(data) {
-                console.log(data.results.bindings);
             var chartData = {};
             for (var i in data.results.bindings) {
                 var categ = data.results.bindings[i].catname.value;
