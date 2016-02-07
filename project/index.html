@@ -8,44 +8,141 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 	<link rel="stylesheet" href="css/map.css" />
+
 </head>
 <body>
 
-	<nav class="navbar navbar-inverse navbar-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#">Haushalte Münster</a>
+	<div class="content">
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Haushalte Münster</a>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="#" id="map_tab">Map</a></li>
+						<li><a href="#" id="datasheet_tab">Data Sheet</a></li>
+						<li><a href="#" id="voc_tab">Vocabulary</a></li>
+					</ul>
+				</div><!--/.nav-collapse -->
 			</div>
-			<div id="navbar" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav">
-					<li class="active"><a href="#" id="map_tab">Map</a></li>
-					<li><a href="#" id="y2011">1p. households 2011</a></li>
-					<li><a href="#" id="y2012">2012</a></li>
-					<li><a href="#" id="y2013">2013</a></li>
-					<li><a href="#" id="y2014">2014</a></li>
-					<li><a href="#" id="voc_tab">Vocabulary</a></li>
-				</ul>
-			</div><!--/.nav-collapse -->
 		</div>
-	</nav>
+		<div id="sidebar-container" class="col-xs-3">
+			<h2>Münster house hold data visualized</h2>
+			<hr>
+			<form>
+				<div class="form-group">
+				<label for="dataset">Select a data set</label>
+				<select id="dataset" class="form-control" disabled="true">
+					<option value="" selected class="disabled">Select a dataset</option>
+					<!-- populated in menu.js -->
+				</select>
+				</div>
+				
+				<div class="form-group">
+				<label for="datasetgender">Select a gender</label>
+				<select id="datasetgender" class="form-control">
+					<!-- populated in menu.js -->
+				</select>
+				</div>
 
-	<div id="map"></div>
-	<div id="voc"></div>
+				<div class="form-group">
+				<label for="datasetage">Select an age group</label>
+				<select id="datasetage" class="form-control">
+					<!-- populated in menu.js -->
+				</select>
+				</div>
+
+				<div class="form-group">
+				<label for="datasetyear">Select a year</label>
+				<select id="datasetyear" class="form-control">
+					<!-- populated in menu.js -->
+				</select>
+				</div>
+	
+				<button class="btn btn-info" id="mapTheData" type="button">Show me</button>
+				<br/>
+				<br/>
+				<label class="btn btn-primary">
+				    <input id="data_sheet_toggle" type="checkbox"> Data Sheet for District
+				</label>
+			</form>
+		</div>
+		<div id="content-container" class="col-xs-9 fill-height nopadding">
+			<div id="map"></div>
+			<div id="voc"></div>
+			<div id="datasheet" class="conatainer">
+				<h1 id="sheet_title"></h1>
+				<div id="data_panel" class="panel-group">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><a data-toggle="collapse" href="#ds_charts">General statistics</a></h3>
+						</div>
+						<div id="ds_charts" class="panel-collapse collapse">
+							<div id="ds_charts_body" class="panel-body"></div>
+						</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><a data-toggle="collapse" href="#single_charts">Single Household statistics</a></h3>
+						</div>
+						<div id="single_charts" class="panel-collapse collapse">
+							<div id="single_charts_body" class="panel-body"></div>
+						</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><a data-toggle="collapse" href="#child_charts">Household with Child statistics</a></h3>
+						</div>
+						<div id="child_charts" class="panel-collapse collapse">
+							<div id="child_charts_body" class="panel-body"></div>
+						</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><a data-toggle="collapse" href="#neighbor_charts">Neighboring districts statistics</a></h3>
+						</div>
+						<div id="neighbor_charts" class="panel-collapse collapse">
+							<div id="neighbor_charts_body" class="panel-body"></div>
+						</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><a data-toggle="collapse" href="#parent_charts">Upper administrative district statistics</a></h3>
+						</div>
+						<div id="parent_charts" class="panel-collapse collapse">
+							<div id="parent_charts_body" class="panel-body"></div>
+						</div>
+					</div>
+				</div>
+				<div id="ds_tables" class="collapse"></div>
+			</div>
+		</div>
+		
+	</div>
+	<button id="sidebar-toggle" class="btn btn-primary sidebar-toggle-button"><span class="glyphicon glyphicon-menu-left"></span></button>
+	<button id="bottombar-toggle" class="btn btn-primary bottombar-toggle-button"><span class="glyphicon glyphicon-menu-up"></span></button>
 
 	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<!-- <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script> -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
 	<script src="https://cdn.rawgit.com/arthur-e/Wicket/master/wicket.js"></script>
 	<script src="https://cdn.rawgit.com/arthur-e/Wicket/master/wicket-leaflet.js"></script>
 	<script src="https://rawgit.com/gka/chroma.js/master/chroma.min.js"></script>
-	
+	<script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
 	<script>
+
 		// global variables / flags
 		var GLOBAL = {
 			"DOCUMENTATION_FETCHED": false
@@ -61,24 +158,112 @@
 		    e.preventDefault();
 		});
 		
+		
+		function showBottomMenu() {
+			hideSidebar();
+			$("#bottombar-toggle").css("bottom","41.5%").show();
+			$("#bottombar-toggle span").removeClass("glyphicon-menu-up").addClass("glyphicon-menu-down");
+			$("#datasheet").show();
+			$("#map").css("height","55%");
+			map.invalidateSize();
+		}
+		
+		function hideBottomMenu(withButton) {
+			if (withButton) {
+				$("#bottombar-toggle").hide();
+			} else {
+				$("#bottombar-toggle").css("bottom","0%").show();
+			}
+			
+			$("#bottombar-toggle span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-up");
+			$("#datasheet").hide();
+			$("#map").css("height","100%");
+			map.invalidateSize();
+		}
+		
+		function hideSidebar(withButton) {
+			if (withButton) {
+				$("#sidebar-toggle").hide();
+			} else {
+				$("#sidebar-toggle").css("left","0%").show();
+			}
+			$("#sidebar-toggle span").removeClass("glyphicon-menu-left").addClass("glyphicon-menu-right");
+			
+			//$('#sidebar-container').hide("slide",{direction:"left"},300);
+			$('#sidebar-container').hide();
+			$('#content-container').removeClass('col-xs-9');
+			$('#content-container').addClass('col-xs-12');
+			map.invalidateSize();
+		}
+		
 		function hideMap() {
 			$('#map').hide();
+			hideSidebar(true);
+		}
+		
+		function showSidebar() {
+			$("#sidebar-toggle span").removeClass("glyphicon-menu-right").addClass("glyphicon-menu-left");
+			$("#sidebar-toggle").css("left","25%").show();
+			
+			//$('#sidebar-container').show("slide",{direction:"left"},300);
+			$('#sidebar-container').show();
+			$('#content-container').removeClass('col-xs-12');
+			$('#content-container').addClass('col-xs-9');
+			map.invalidateSize();
 		}
 		
 		function showDocumentation() {
+			hideMap();
+			//hideDataSheet();
+			hideBottomMenu(true);
 			$('#voc').show();
 		}
 		
 		function showMap() {
+			//hideDataSheet();
+			hideDocumentation();
+			showSidebar();
+			
 			$('#map').show();
+			map.invalidateSize();
 		}
+		
+		
 		
 		function hideDocumentation() {
 			$('#voc').hide();
 		}
+		
+		function hideDataSheet() {
+		    $("#datasheet").hide();
+		};
+
+		function showDataSheet() {
+			hideMap();
+			hideDocumentation();
+		    $("#datasheet").show();
+		};
+		
+		$("#data_sheet_toggle").prop("checked",false);
+		$("#sidebar-toggle").click(function (e) {
+			if ($("#sidebar-container").css("display") == "none") {
+				showSidebar();
+			} else {
+				hideSidebar(false);
+			}
+		});
+		
+		$("#bottombar-toggle").click(function (e) {
+			if ($("#datasheet").css("display") == "none") {
+				showBottomMenu();
+			} else {
+				hideBottomMenu(false);
+			}
+		});
 	</script>
 	<script src="js/doc.js"></script>
 	<script src="js/map.js"></script>
-	
+	<script src="js/sheet.js"></script>
+	<script src="js/menu.js"></script>
 </body>
 </html>
