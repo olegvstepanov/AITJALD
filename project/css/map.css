@@ -85,6 +85,7 @@ html, body{
 }
 
 .bottombar-toggle-button {
+	display: none;
 	padding-top:0px;
 	width: 60px;
 	height: 20px;
@@ -100,10 +101,16 @@ html, body{
 }
 
 #split-bottom-bar {
+	position:fixed;
 	background-color:grey;
-    height:2px;
+    height:3px;
+    z-index: 3000;
     width: 100%;
     cursor: row-resize;
+}
+
+.collapse-all {
+	float:right;
 }
 
 #chartContainer {

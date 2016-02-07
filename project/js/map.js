@@ -159,11 +159,13 @@ function processBindings(data) {
                     var isChecked = $("#data_sheet_toggle").prop("checked");
                     console.log("checked: "+isChecked);
                     if (isChecked) {
+                        $("#datasheet .collapse").collapse("show");
                         queryDataSheet(feature.id);
                         createNeighborsChart(feature.properties.name)();
                         createDistrictAndParentChart(feature.properties.name)();
                         //districtObj.on('click', createNeighborsChart(name));
                         //districtObj.on('click', createDistrictAndParentChart(name));
+                        $("#datasheet .collapse").collapse("hide");
                     }
                     
                 }

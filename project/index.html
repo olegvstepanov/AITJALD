@@ -77,13 +77,13 @@
 		<div id="content-container" class="col-xs-9 fill-height nopadding">
 			<div id="map"></div>
 			<div id="voc"></div>
-			<div id="datasheet" class="conatainer">
+			<div id="datasheet" class="container">
 				<div id="split-bottom-bar"></div>
 				<h1 id="sheet_title"></h1>
 				<div id="data_panel" class="panel-group">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title"><a data-toggle="collapse" href="#ds_charts">General statistics</a></h3>
+							<h3 class="panel-title"><a data-toggle="collapse" href="#ds_charts">General statistics</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('hide')">[Collapse All]</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('show')">[Show All]</a></h3>
 						</div>
 						<div id="ds_charts" class="panel-collapse collapse">
 							<div id="ds_charts_body" class="panel-body" align="center"></div>
@@ -92,7 +92,7 @@
 					
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title"><a data-toggle="collapse" href="#single_charts">Single Household statistics</a></h3>
+							<h3 class="panel-title"><a data-toggle="collapse" href="#single_charts">Single Household statistics</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('hide')">[Collapse All]</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('show')">[Show All]</a></h3>
 						</div>
 						<div id="single_charts" class="panel-collapse collapse">
 							<div id="single_charts_body" class="panel-body" align="center"></div>
@@ -101,7 +101,7 @@
 					
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title"><a data-toggle="collapse" href="#child_charts">Household with Child statistics</a></h3>
+							<h3 class="panel-title"><a data-toggle="collapse" href="#child_charts">Household with Child statistics</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('hide')">[Collapse All]</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('show')">[Show All]</a></h3>
 						</div>
 						<div id="child_charts" class="panel-collapse collapse">
 							<div id="child_charts_body" class="panel-body" align="center"></div>
@@ -110,7 +110,7 @@
 					
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title"><a data-toggle="collapse" href="#neighbor_charts">Neighboring districts statistics</a></h3>
+							<h3 class="panel-title"><a data-toggle="collapse" href="#neighbor_charts">Neighboring districts statistics</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('hide')">[Collapse All]</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('show')">[Show All]</a></h3>
 						</div>
 						<div id="neighbor_charts" class="panel-collapse collapse">
 							<div id="neighbor_charts_body" class="panel-body" align="center"></div>
@@ -119,7 +119,7 @@
 					
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title"><a data-toggle="collapse" href="#parent_charts">Upper administrative district statistics</a></h3>
+							<h3 class="panel-title"><a data-toggle="collapse" href="#parent_charts">Upper administrative district statistics</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('hide')">[Collapse All]</a><a class="collapse-all" onclick="$('#datasheet .collapse').collapse('show')">[Show All]</a></h3>
 						</div>
 						<div id="parent_charts" class="panel-collapse collapse">
 							<div id="parent_charts_body" class="panel-body" align="center"></div>
@@ -277,7 +277,7 @@
     		$(document).mousemove(function (e) {
 		        e.preventDefault();
 		        
-		        var min = 52;
+		        var min = 72;
 		        var max = $(window).height();
 		        var newHeight = ((max - e.clientY)/max)*100;
 		        var mapHeight = (100-newHeight);
@@ -285,7 +285,7 @@
 		        if (e.clientY > min && newHeight > 20) {
 		        	$('#datasheet').css("height", (max - e.clientY)+"px");
 		        	$('.bottombar-toggle-button').css("bottom",(max - e.clientY)+"px");
-		          	$('#map').css("height", (e.clientY-min)+"px");
+		          	$('#map').css("height", (e.clientY-min)+20+"px");
 		          	map.invalidateSize();
 		        }
 		        //var x = $('#datasheet').offset().top - e.pageY;

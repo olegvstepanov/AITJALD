@@ -56,7 +56,7 @@ function queryDataSheet(uri) {
     //showDataSheet();
     showBottomMenu();
     
-    $("#datasheet .collapse").collapse("show");
+    
     
     //$('.navbar li.active').removeClass('active');
     //$("#datasheet_tab").parent().addClass('active');
@@ -67,7 +67,7 @@ function queryDataSheet(uri) {
     },
     function(data) {
         visualizeDataSheet(data);
-        $("#datasheet .collapse").collapse("hide");
+        
     });
 }
 
