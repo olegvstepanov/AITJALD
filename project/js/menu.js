@@ -3,7 +3,13 @@
 */
 function queryDatasets() {
 	// queries/observations.txt
-    var qry = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX cube: <http://purl.org/linked-data/cube#> SELECT ?observation ?label ?structure WHERE { GRAPH <http://course.introlinkeddata.org/G4> {?observation rdf:type cube:DataSet . ?observation cube:structure ?structure . ?observation rdfs:label ?label FILTER (lang(?label) = 'en') }}";
+    var qry = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+			"PREFIX cube: <http://purl.org/linked-data/cube#> " +
+			"SELECT ?observation ?label ?structure WHERE { GRAPH <http://course.introlinkeddata.org/G4> {" +
+				"?observation rdf:type cube:DataSet ." +
+				"?observation cube:structure ?structure ." +
+				"?observation rdfs:label ?label FILTER (lang(?label) = 'en') }}";
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: qry,
         output: 'json'
@@ -40,7 +46,33 @@ function populateDatasetSelection(data) {
 */
 function queryDataSubsets(countType) {
 	// queries/observations-subdivision.txt
-    var qry = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX cube: <http://purl.org/linked-data/cube#> PREFIX lodcom: <http://vocab.lodcom.de/> PREFIX greg: <http://reference.data.gov.uk/id/gregorian-interval/> PREFIX dimension: <http://purl.org/linked-data/sdmx/2009/dimension#> PREFIX gendercode: <http://purl.org/linked-data/sdmx/2009/code#> SELECT DISTINCT (CONCAT(?minAge, "-", ?maxAge) AS ?ageRanges) ?ageRange (STR(?refPeriod) AS ?refPeriods) ?gender WHERE { GRAPH <http://course.introlinkeddata.org/G4> {lodcom:'+countType+' cube:structure ?structure . ?structure cube:component ?components . OPTIONAL {?components cube:dimension ?ageRangeDim . ?obs cube:dataSet lodcom:'+countType+' . ?obs lodcom:ageRange ?ageRange . ?ageRange lodcom:min ?minAge . ?ageRange lodcom:max ?maxAge } . OPTIONAL {?components cube:dimension ?refPeriodDim . ?obs cube:dataSet lodcom:'+countType+' . ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod } . OPTIONAL {?components cube:dimension dimension:sex . ?obs cube:dataSet lodcom:'+countType+' . ?obs dimension:sex ?gender } }}  ORDER BY ASC(?ageRanges) DESC(?refPeriods) ASC(?gender)';
+    var qry = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " + 
+			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " + 
+			"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " + 
+			"PREFIX cube: <http://purl.org/linked-data/cube#> " + 
+			"PREFIX lodcom: <http://vocab.lodcom.de/> " + 
+			"PREFIX greg: <http://reference.data.gov.uk/id/gregorian-interval/> " + 
+			"PREFIX dimension: <http://purl.org/linked-data/sdmx/2009/dimension#> " + 
+			"PREFIX gendercode: <http://purl.org/linked-data/sdmx/2009/code#> " + 
+			"SELECT DISTINCT (CONCAT(?minAge, '-', ?maxAge) AS ?ageRanges) ?ageRange (STR(?refPeriod) AS ?refPeriods) ?gender WHERE { " + 
+			"GRAPH <http://course.introlinkeddata.org/G4> {" + 
+				"lodcom:"+countType+" cube:structure ?structure ." + 
+				"?structure cube:component ?components . " + 
+					"OPTIONAL {" + 
+						"?components cube:dimension ?ageRangeDim . " + 
+						"?obs cube:dataSet lodcom:"+countType+" . " + 
+						"?obs lodcom:ageRange ?ageRange . " + 
+						"?ageRange lodcom:min ?minAge . " + 
+						"?ageRange lodcom:max ?maxAge } . " + 
+					"OPTIONAL {" + 
+						"?components cube:dimension ?refPeriodDim . " + 
+						"?obs cube:dataSet lodcom:"+countType+" . " + 
+						"?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod } . " + 
+					"OPTIONAL {" + 
+						"?components cube:dimension dimension:sex . " + 
+						"?obs cube:dataSet lodcom:"+countType+" . " + 
+						"?obs dimension:sex ?gender } " + 
+			"}} ORDER BY ASC(?ageRanges) DESC(?refPeriods) ASC(?gender)";
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: qry,
         output: 'json'
@@ -68,20 +100,24 @@ function populateYearAndGenderSelection(data) {
 				$(optionAge).html(range.value);
 				$('select#datasetage').append(optionAge);
 			}
+
 			// time periods (years)
 			if(data.results.bindings[i].refPeriods){
 				var period = data.results.bindings[i].refPeriods;
 
+				// filter just the year from the URI
 				var year = period.value.match(/\/(\d{4})-01-01T/)[1];
 
 				// do not insert duplicate entries
 				if($('select#datasetyear option[value="'+period.value+'"]').length===0) {
 					var optionYear = $("<option></option>");
-					$(optionYear).attr('value', period.value);
+					$(optionYear).attr('value', year);
+					$(optionYear).attr('data-uri', period.value);
 					$(optionYear).html(year);
 					$('select#datasetyear').append(optionYear);
 				}
 			}
+
 			// gender
 			if(data.results.bindings[i].gender){
 				var gender = data.results.bindings[i].gender;
@@ -112,6 +148,14 @@ $('select#dataset').on('change', function(e){
 		queryDataSubsets(countType);
 		$('select#dataset option.disabled').attr('disabled', 'disabled');
 	}
+});
+
+$('button#mapTheData').on('click', function(){
+	// see also map.js
+	showThis.year = $('select#datasetyear').val();
+	showThis.agegroup = $('select#datasetage').val();
+	showThis.gender = $('select#datasetgender').val();
+	mapData();
 });
 
 queryDatasets();
