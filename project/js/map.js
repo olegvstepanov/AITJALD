@@ -44,7 +44,7 @@ var showThis = {
     dataset: "SingleHouseholdTotalCount",
     gender: "female",
     agegroup: "AgeRange_20_29"
-}
+};
 
 map.on('zoomend', function () {
     //console.log(map.getZoom());
@@ -350,7 +350,7 @@ function createDistrictAndParentChart(name) {
                 + "?obs qb:dataSet ?category . "
                 + "?category rdfs:label ?catname . "
                 + "?obs lodcom:numberOfHouseholds ?n . "
-                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> "
+                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> "
                 + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
                 + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en') "
                 + "}} ORDER BY ASC(?catname)";
@@ -366,7 +366,7 @@ function createDistrictAndParentChart(name) {
                 + "?obs qb:dataSet ?category . "
                 + "?category rdfs:label ?catname . "
                 + "?obs lodcom:numberOfHouseholds ?n . "
-                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y>.  "
+                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y>.  "
                 + "FILTER (lang(?catname) = 'en') "
                 + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
                 + "}}  ORDER BY ASC(?catname)";
@@ -398,10 +398,10 @@ function addDataToPieChart(name, qry, id) {
         });
 }
 
-    function createPieChart(name, chartData, id, title) {
+    function createPieChart(name, chartData, id) {
         var chart = new CanvasJS.Chart(id,{
         title:{
-            text: "Households distribution in "+name,
+            text: "Household distribution in "+name +" ("+showThis.year+")",
             fontFamily: "arial black"
         },
         animationEnabled: true,
@@ -431,7 +431,7 @@ function addDataToPieChart(name, qry, id) {
 }
 
 function addChartDiv(whereId, whatId) {
-        $(whereId).append('<div id='+whatId+'></div></br>')
+        $(whereId).append('<div id='+whatId+'></div></br>');
 }
 
 function createNeighborsChart(name) {
@@ -450,16 +450,9 @@ function createNeighborsChart(name) {
 						+ "?obs qb:dataSet ?category . "
 						+ "?category rdfs:label ?catname . "
 						+ "?obs lodcom:numberOfHouseholds ?n . "
-						+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . "
+						+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> . "
 						+ "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')"
-				+ "} UNION {"
-						+ "lodcom:"+name.toLowerCase()+" rdfs:label ?name. "
-						+ "?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . "
-						+ "?obs qb:dataSet ?category . "
-						+ "?category rdfs:label ?catname . "
-						+ "?obs lodcom:numberOfHouseholds ?n . "
-						+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+currentYear+"-01-01T00:00:00/P1Y> . "
-						+ "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')"
+						+ "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
 				+ "}"
 			+ "}} ORDER BY ASC(?catname)";
                     
@@ -501,7 +494,7 @@ function createBarChart(chartContent) {
     
     var chart = new CanvasJS.Chart("neigh_chart", {
         title:{
-            text:"Neighbor districts households in " + currentYear
+            text:"Neighbor districts households in " + showThis.year
         },
         animationEnabled: true,
         axisX:{
