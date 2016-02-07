@@ -78,6 +78,7 @@
 			<div id="map"></div>
 			<div id="voc"></div>
 			<div id="datasheet" class="conatainer">
+				<div id="split-bottom-bar"></div>
 				<h1 id="sheet_title"></h1>
 				<div id="data_panel" class="panel-group">
 					<div class="panel panel-default">
@@ -161,10 +162,12 @@
 		
 		function showBottomMenu() {
 			hideSidebar();
-			$("#bottombar-toggle").css("bottom","41.5%").show();
+			$("#datasheet").css("height","40%");
+			$("#bottombar-toggle").css("bottom",$("#datasheet").css("height")).show();
 			$("#bottombar-toggle span").removeClass("glyphicon-menu-up").addClass("glyphicon-menu-down");
+			
 			$("#datasheet").show();
-			$("#map").css("height","55%");
+			$("#map").css("height","60%");
 			map.invalidateSize();
 			$("#bottombar-toggle").attr("title","Hide Data Sheet.");
 		}
@@ -266,6 +269,37 @@
 			} else {
 				hideBottomMenu(false);
 			}
+		});
+		
+		//resizeable bottom bar
+		$('#split-bottom-bar').mousedown(function (e) {
+    		e.preventDefault();
+    		$(document).mousemove(function (e) {
+		        e.preventDefault();
+		        
+		        var min = 52;
+		        var max = $(window).height();
+		        var newHeight = ((max - e.clientY)/max)*100;
+		        var mapHeight = (100-newHeight);
+		        
+		        if (e.clientY > min && newHeight > 20) {
+		        	$('#datasheet').css("height", (max - e.clientY)+"px");
+		        	$('.bottombar-toggle-button').css("bottom",(max - e.clientY)+"px");
+		          	$('#map').css("height", (e.clientY-min)+"px");
+		          	map.invalidateSize();
+		        }
+		        //var x = $('#datasheet').offset().top - e.pageY;
+		         //console.log(x);
+		          //$('#datasheet').css("height", x);
+		          //$('#map').css("margin-top", x);
+		          //map.invalidateSize();
+		        
+    		});
+		});
+			
+		$(document).mouseup(function (e) {
+			$(document).unbind('mousemove');
+		
 		});
 	</script>
 	<script src="js/doc.js"></script>

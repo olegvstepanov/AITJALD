@@ -160,6 +160,10 @@ function processBindings(data) {
                     console.log("checked: "+isChecked);
                     if (isChecked) {
                         queryDataSheet(feature.id);
+                        createNeighborsChart(feature.properties.name)();
+                        createDistrictAndParentChart(feature.properties.name)();
+                        //districtObj.on('click', createNeighborsChart(name));
+                        //districtObj.on('click', createDistrictAndParentChart(name));
                     }
                     
                 }
@@ -241,8 +245,6 @@ function addWktToMap(wktstring, name, population, col) {
 function bindMouseEvents(districtObj, name) {
     districtObj.on('mouseover', createMouseOverHandler(name));
     districtObj.on('mouseout', mouseOutHandler);
-    districtObj.on('click', createNeighborsChart(name));
-    districtObj.on('click', createDistrictAndParentChart(name));
 }
 
 function createMouseOverHandler(name) {
