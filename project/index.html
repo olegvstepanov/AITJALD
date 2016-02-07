@@ -27,7 +27,7 @@
 				<div id="navbar" class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="#" id="map_tab">Map</a></li>
-						<li><a href="#" id="datasheet_tab">Data Sheet</a></li>
+						<!--<li><a href="#" id="datasheet_tab">Data Sheet</a></li>-->
 						<li><a href="#" id="voc_tab">Vocabulary</a></li>
 					</ul>
 				</div><!--/.nav-collapse -->
@@ -130,8 +130,8 @@
 		</div>
 		
 	</div>
-	<button id="sidebar-toggle" class="btn btn-primary sidebar-toggle-button"><span class="glyphicon glyphicon-menu-left"></span></button>
-	<button id="bottombar-toggle" class="btn btn-primary bottombar-toggle-button"><span class="glyphicon glyphicon-menu-up"></span></button>
+	<button id="sidebar-toggle" class="btn btn-primary sidebar-toggle-button" data-toggle="tooltip" data-placement="right" title="Hide Sidebar."><span class="glyphicon glyphicon-menu-left"></span></button>
+	<button id="bottombar-toggle" class="btn btn-primary bottombar-toggle-button" data-toggle="tooltip" data-placement="right" title="Show Data Sheet."><span class="glyphicon glyphicon-menu-up"></span></button>
 
 	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<!-- <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script> -->
@@ -166,6 +166,7 @@
 			$("#datasheet").show();
 			$("#map").css("height","55%");
 			map.invalidateSize();
+			$("#bottombar-toggle").attr("title","Hide Data Sheet.");
 		}
 		
 		function hideBottomMenu(withButton) {
@@ -179,6 +180,8 @@
 			$("#datasheet").hide();
 			$("#map").css("height","100%");
 			map.invalidateSize();
+			
+			$("#bottombar-toggle").attr("title","Show Data Sheet.");
 		}
 		
 		function hideSidebar(withButton) {
@@ -194,6 +197,7 @@
 			$('#content-container').removeClass('col-xs-9');
 			$('#content-container').addClass('col-xs-12');
 			map.invalidateSize();
+			$("#sidebar-toggle").attr("title","Show Sidebar.");
 		}
 		
 		function hideMap() {
@@ -210,6 +214,7 @@
 			$('#content-container').removeClass('col-xs-12');
 			$('#content-container').addClass('col-xs-9');
 			map.invalidateSize();
+			$("#sidebar-toggle").attr("title","Hide Sidebar.");
 		}
 		
 		function showDocumentation() {
@@ -245,9 +250,11 @@
 		};
 		
 		$("#data_sheet_toggle").prop("checked",false);
+		
 		$("#sidebar-toggle").click(function (e) {
 			if ($("#sidebar-container").css("display") == "none") {
 				showSidebar();
+				
 			} else {
 				hideSidebar(false);
 			}

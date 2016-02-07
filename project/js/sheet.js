@@ -58,8 +58,8 @@ function queryDataSheet(uri) {
     
     $("#datasheet .collapse").collapse("show");
     
-    $('.navbar li.active').removeClass('active');
-    $("#datasheet_tab").parent().addClass('active');
+    //$('.navbar li.active').removeClass('active');
+    //$("#datasheet_tab").parent().addClass('active');
     
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: Prefixes.toString()+QUERY_DATASHEET.split("%DISTRICT%").join(uri),
