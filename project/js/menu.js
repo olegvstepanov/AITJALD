@@ -95,8 +95,8 @@ function populateYearAndGenderSelection(data) {
 				var range = data.results.bindings[i].ageRanges;
 
 				var optionAge = $("<option></option>");
-				$(optionAge).attr('value', range.value);
-				$(optionAge).attr('data-uri', data.results.bindings[i].ageRange.value);
+				$(optionAge).attr('value', data.results.bindings[i].ageRange.value);
+				//$(optionAge).attr('data-uri', data.results.bindings[i].ageRange.value);
 				$(optionAge).html(range.value);
 				$('select#datasetage').append(optionAge);
 			}
@@ -109,7 +109,7 @@ function populateYearAndGenderSelection(data) {
 				var year = period.value.match(/\/(\d{4})-01-01T/)[1];
 
 				// do not insert duplicate entries
-				if($('select#datasetyear option[value="'+period.value+'"]').length===0) {
+				if($('select#datasetyear option[value="'+year+'"]').length===0) {
 					var optionYear = $("<option></option>");
 					$(optionYear).attr('value', year);
 					$(optionYear).attr('data-uri', period.value);
@@ -153,6 +153,7 @@ $('select#dataset').on('change', function(e){
 $('button#mapTheData').on('click', function(){
 	// see also map.js
 	showThis.year = $('select#datasetyear').val();
+	showThis.dataset = $('select#dataset').val();
 	showThis.agegroup = $('select#datasetage').val();
 	showThis.gender = $('select#datasetgender').val();
 	mapData();

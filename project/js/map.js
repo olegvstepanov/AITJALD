@@ -40,9 +40,9 @@ var showThis = {
     area: "Stadtteil",
     year: 2011,
     dataset: "SingleHouseholdTotalCount",
-    gender: "female",
-    agegroup: "AgeRange_20_29"
-}
+    gender: null,
+    agegroup: null
+};
 
 map.on('zoomend', function () {
     //console.log(map.getZoom());
@@ -65,37 +65,41 @@ map.on('zoomend', function () {
 });
 
 function mapData(y) {
-       var qry = "PREFIX afn: <http://jena.hpl.hp.com/ARQ/function#> "
-            + "PREFIX fn: <http://www.w3.org/2005/xpath-functions#> "
-            + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
-            + "PREFIX geof: <http://www.opengis.net/def/function/geosparql/> "
-            + "PREFIX gml: <http://www.opengis.net/ont/gml#> "
-            + "PREFIX owl: <http://www.w3.org/2002/07/owl#> "
-            + "PREFIX par: <http://parliament.semwebcentral.org/parliament#> "
-            + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-            + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-            + "PREFIX sf: <http://www.opengis.net/ont/sf#> "
-            + "PREFIX time: <http://www.w3.org/2006/time#> "
-            + "PREFIX units: <http://www.opengis.net/def/uom/OGC/1.0/> "
-            + "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "
-            + "PREFIX lodcom: <http://vocab.lodcom.de/> "
-            + "SELECT ?id ?name ?n ?wkt "
-            + "WHERE { "
-            + "GRAPH <http://course.introlinkeddata.org/G4> "
-                + "{"
-                    + "?bezirk rdf:type lodcom:"+showThis.area+" . "
-                    + "?bezirk <http://www.w3.org/2000/01/rdf-schema#label> ?name . "
-                    + "?id <http://www.w3.org/2000/01/rdf-schema#label> ?name . "
-                    + "?obs <http://purl.org/linked-data/cube#dataSet> lodcom:"+showThis.dataset+" . "
-                    + "?obs <http://vocab.lodcom.de/numberOfHouseholds> ?num . "
-                    + "?obs lodcom:refArea ?bezirk . "
-                    + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> . "
-                    + "?obs <http://purl.org/linked-data/sdmx/2009/measure#obsValue> ?n . "
-                    + "?bezirk geo:hasGeometry ?geometry . "
-                    + "?geometry geo:asWKT ?wkt. "
-                    + "FILTER(lang(?name) = 'en') "
-                + "}"
-            + "} ORDER BY ?n";
+    var genderFilter = (showThis.gender !== null) ? "?obs <http://purl.org/linked-data/sdmx/2009/dimension#sex> <"+showThis.gender+"> ." : "";
+    var ageRangeFilter = (showThis.agegroup !== null) ? "?obs <http://vocab.lodcom.de/ageRange> <"+showThis.agegroup+"> ." : "";
+    var qry = "PREFIX afn: <http://jena.hpl.hp.com/ARQ/function#> "
+        + "PREFIX fn: <http://www.w3.org/2005/xpath-functions#> "
+        + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
+        + "PREFIX geof: <http://www.opengis.net/def/function/geosparql/> "
+        + "PREFIX gml: <http://www.opengis.net/ont/gml#> "
+        + "PREFIX owl: <http://www.w3.org/2002/07/owl#> "
+        + "PREFIX par: <http://parliament.semwebcentral.org/parliament#> "
+        + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+        + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+        + "PREFIX sf: <http://www.opengis.net/ont/sf#> "
+        + "PREFIX time: <http://www.w3.org/2006/time#> "
+        + "PREFIX units: <http://www.opengis.net/def/uom/OGC/1.0/> "
+        + "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "
+        + "PREFIX lodcom: <http://vocab.lodcom.de/> "
+        + "SELECT ?id ?name ?n ?wkt "
+        + "WHERE { "
+        + "GRAPH <http://course.introlinkeddata.org/G4> "
+            + "{"
+                + "?bezirk rdf:type lodcom:"+showThis.area+" . "
+                + "?bezirk <http://www.w3.org/2000/01/rdf-schema#label> ?name . "
+                + "?id <http://www.w3.org/2000/01/rdf-schema#label> ?name . "
+                + "?obs <http://purl.org/linked-data/cube#dataSet> lodcom:"+showThis.dataset+" . "
+                + "?obs <http://vocab.lodcom.de/numberOfHouseholds> ?num . "
+                + "?obs lodcom:refArea ?bezirk . "
+                + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> . "
+                + "?obs <http://purl.org/linked-data/sdmx/2009/measure#obsValue> ?n . "
+                + genderFilter 
+                + ageRangeFilter
+                + "?bezirk geo:hasGeometry ?geometry . "
+                + "?geometry geo:asWKT ?wkt. "
+                + "FILTER(lang(?name) = 'en') "
+            + "}"
+        + "} ORDER BY ?n";
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: qry,
         output: 'json'
@@ -258,7 +262,7 @@ function updateLegend(minmax) {
 
     var intermediateSteps = [];
     for(var i=0; i<=5; i++){
-        var step = minmax[0]+Math.floor((minmax[1]-minmax[0])/5)*i;
+        var step = minmax[0]+Math.round((minmax[1]-minmax[0])/5)*i;
         intermediateSteps.push(step);
     }
     // sort numbers in descending order
@@ -268,7 +272,7 @@ function updateLegend(minmax) {
 
     legend.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'info legend');
-        var labels = [];
+        var labels = ["<h4>Nr. of <br/>households</h4>"];
         intermediateSteps.forEach(function(dataValue, index, array){
             try{
                 labels.push('<i style="background:' + colorScale(dataValue) + '"></i>' + dataValue);
