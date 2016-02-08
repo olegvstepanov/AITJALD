@@ -284,17 +284,10 @@ function updateLegend(minmax) {
 
 function mouseOutHandler(e) {
     var layer = e.target;
-    layer.setStyle({
-            //color: '#87421F',
-            dashArray: '',
-            weight: 0.5,
-        opacity: 1,
-        fillOpacity: 0.9
-    });
-        try {
-            info.removeFrom(map);
-        } catch(e){
-        }
+    gjlayer.resetStyle(layer);
+    try {
+        info.removeFrom(map);
+    } catch(e){}
 }
 
 function postQuery(qry, callback) {
