@@ -1,5 +1,3 @@
-var wkt = new Wkt.Wkt(); // Wicket library for WKT geometries
-
 var map = L.map('map').setView([51.9609808, 7.62416839], 13);
 
 var defaults = {
@@ -178,8 +176,7 @@ function parseToGeoJSONFeatureCollection(data) {
     };
     for(var i in data.results.bindings) {
         var current = data.results.bindings[i];
-        wkt.read(current.wkt.value);
-        
+
         var geoJson = {
             "type": "Feature",
             "id": "",
@@ -187,7 +184,7 @@ function parseToGeoJSONFeatureCollection(data) {
             "geometry": {}
         };
         
-        geoJson.geometry = wkt.toJson();
+        geoJson.geometry = Terraformer.WKT.parse(current.wkt.value);
         geoJson.id = current.id.value;
         geoJson.properties.name = current.name.value;
         geoJson.properties.n = current.n.value;
@@ -213,29 +210,6 @@ function addPopupToLayer() {
     });
 }
 
-//TODO remove this part as is no longer used
-function addWktToMap(wktstring, name, population, col) {
-    //console.log(wktstring, name, population, col);
-    //console.log(name);
-    wkt.read(wktstring);
-    //var rgb = "rgb("+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+","+Math.floor((Math.random()*255))+")"; // random colour
-    //colourScale(Math.floor(Math.random()*255))
-    var districtObj = wkt.toObject({
-        fillColor: col,
-        color: '#87421F',
-        dashArray: '',
-        weight: 0.5,
-        opacity: 1,
-        fillOpacity: 0.9
-    });
-
-    var other = '<br><img src="dummygraph.jpg">';
-
-    // districtObj.bindPopup("<b>"+name+"</b><br>"+population+" households<br>"+other);
-
-    bindMouseEvents(districtObj, name, population);
-    return districtObj;
-}
 
 function bindMouseEvents(districtObj, name) {
     districtObj.on('mouseover', createMouseOverHandler(name));
