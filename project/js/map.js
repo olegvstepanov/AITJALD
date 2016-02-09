@@ -176,9 +176,6 @@ function processBindings(data) {
                         queryDataSheet(feature.id);
                         createNeighborsChart(feature.properties.name)();
                         createDistrictAndParentChart(feature.properties.name)();
-                        //districtObj.on('click', createNeighborsChart(name));
-                        //districtObj.on('click', createDistrictAndParentChart(name));
-                        $("#datasheet .collapse").collapse("hide");
                     }
                     
                 }
@@ -238,6 +235,9 @@ function addPopupToLayer() {
 function bindMouseEvents(districtObj, name) {
     districtObj.on('mouseover', createMouseOverHandler(name));
     districtObj.on('mouseout', mouseOutHandler);
+    
+    //districtObj.on('click', createNeighborsChart(name));
+    //districtObj.on('click', createDistrictAndParentChart(name));
 }
 
 function createMouseOverHandler(name) {
