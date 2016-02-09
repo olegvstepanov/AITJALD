@@ -119,6 +119,7 @@ function mapData() {
         output: 'json'
     },
     function(data){
+        console.log(data.results.bindings);
         processBindings(data);
     });
 }
@@ -339,6 +340,9 @@ function postQuery(qry, callback) {
 
 function createDistrictAndParentChart(name) {
     return function(e){
+        if (name.length>1){
+            name = name.split(" ").join("_")
+        }
         var qryParent = "PREFIX lodcom: <http://vocab.lodcom.de/> "
             + "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
             + "PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> "
@@ -397,10 +401,7 @@ function addDataToPieChart(name, qry, id) {
         if (data.results.bindings[0].name) {
             var currentName = data.results.bindings[0].name.value;
         }
-        var chartData = data.results.bindings.filter(
-            function(binding){
-                return binding.catname.value.split(" ").length > 5;
-            }).map(function(binding) {
+        var chartData = data.results.bindings.map(function(binding) {
                 return {
                     y : parseInt(binding.n.value),
                     name: binding.catname.value
@@ -450,7 +451,7 @@ function addDataToPopupChart (name, qry, id) {
                     label: binding.catname.value.split(" ")[4]
                 };
             });
-            createColumnChart(currentName, chartData.sort(), id);
+            createColumnChart(currentName, chartData, id);
         });
 
     function createColumnChart(currentName, chartData, id) {
@@ -476,6 +477,9 @@ function addDataToPopupChart (name, qry, id) {
 
 function createNeighborsChart(name) {
     return function(e) {
+        if (name.length>1){
+            name = name.split(" ").join("_")
+        }
         var qryNeighborAllCateg = "PREFIX lodcom: <http://vocab.lodcom.de/> "
 			+ "PREFIX geo: <http://www.opengis.net/ont/geosparql#> "
 			+ "PREFIX qb: <http://purl.org/linked-data/cube#> "
@@ -493,8 +497,18 @@ function createNeighborsChart(name) {
 						+ "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> . "
 						+ "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')"
 						+ "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
-				+ "}"
-			+ "}} ORDER BY ASC(?catname)";
+				+ "} UNION {"
+                        + "lodcom:"+name.toLowerCase()+" rdfs:label ?name. "
+                        + "?obs lodcom:refArea lodcom:"+name.toLowerCase()+" . "
+                        + "?obs qb:dataSet ?category . "
+                        + "?category rdfs:label ?catname . "
+                        + "?obs lodcom:numberOfHouseholds ?n . "
+                        + "?obs lodcom:refPeriod <http://reference.data.gov.uk/id/gregorian-interval/"+showThis.year+"-01-01T00:00:00/P1Y> . "
+                        + "FILTER (lang(?name) = 'en' && lang(?catname) = 'en')"
+                        + "FILTER (?category IN (lodcom:SingleHouseholdTotalCount,lodcom:TwoPersonsHouseholdCount,lodcom:ThreePersonsHouseholdCount,lodcom:FourPersonsHouseholdCount,lodcom:FivePersonsMoreHouseholdCount))"
+                + "}"
+            + "}} ORDER BY DESC(?n)";
+
                     
         postQuery(qryNeighborAllCateg, function(data) {
             var chartData = {};
@@ -502,14 +516,12 @@ function createNeighborsChart(name) {
                 var categ = data.results.bindings[i].catname.value;
                 var popul = parseInt(data.results.bindings[i].n.value);
                     var distr = data.results.bindings[i].name.value;
-                    if (categ.split(" ").length>5){
                         if (!(categ in chartData)){
                             chartData[categ] = [{y : popul, label: distr}]
                         }
                         else {
                             chartData[categ].push({y : popul, label: distr})
                         }
-                    }
                 }
             var chartContent = [];
             for (var category in chartData) {
