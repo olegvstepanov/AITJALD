@@ -1,10 +1,3 @@
-$('#datasheet_tab').on('click', function(){
-
-    //$("#datasheet").empty();
-    //showDataSheet();
-    showBottomMenu();
-});
-
 QUERY_DATASHEET = "SELECT DISTINCT ?dataSet ?dataSetName ?district ?year ?sex ?ageRange ?value ?uomLabel\r\n" + 
             "WHERE {\r\n" + 
             "   GRAPH <http://course.introlinkeddata.org/G4> {\r\n" + 
@@ -52,14 +45,7 @@ QUERY_DATASHEET = "SELECT DISTINCT ?dataSet ?dataSetName ?district ?year ?sex ?a
 function queryDataSheet(uri) {
 
     $("#datasheet .panel-body").empty();
-    
-    //showDataSheet();
     showBottomMenu();
-    
-    
-    
-    //$('.navbar li.active').removeClass('active');
-    //$("#datasheet_tab").parent().addClass('active');
     
     $.post("http://giv-lodumdata.uni-muenster.de:8282/parliament/sparql", {
         query: Prefixes.toString()+QUERY_DATASHEET.split("%DISTRICT%").join(uri),
@@ -67,7 +53,6 @@ function queryDataSheet(uri) {
     },
     function(data) {
         visualizeDataSheet(data);
-        
     });
 }
 

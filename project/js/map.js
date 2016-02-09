@@ -121,7 +121,6 @@ function mapData() {
     function(data){
         processBindings(data);
     });
-    currentYear = y;
 }
 
 /*
@@ -170,18 +169,20 @@ function processBindings(data) {
             layer.on({
                 click: function(e) {
                     var isChecked = $("#data_sheet_toggle").prop("checked");
-                    console.log("checked: "+isChecked);
+                    //console.log("checked: "+isChecked);
                     if (isChecked) {
                         $("#datasheet .collapse").collapse("show");
                         queryDataSheet(feature.id);
                         createNeighborsChart(feature.properties.name)();
-                        createDistrictAndParentChart(feature.properties.name)();
+                        
                     }
-                    
+                    createDistrictAndParentChart(feature.properties.name)();
                 }
             });
         }
     });
+    
+    
     addPopupToLayer();
     
     gjlayer.addTo(map);
@@ -226,7 +227,12 @@ function styleFeature(feature) {
 
 function addPopupToLayer() {
     gjlayer.eachLayer(function(layer) {
-        layer.bindPopup("<b>"+layer.feature.properties.name+"</b><br>"+layer.feature.properties.n+" "+ ((showThis.dataset==="AveragePersonsPerHousehold")?"person household size":"households") +"<br>"+"<div id='popup'></div>");
+        var isChecked = $("#data_sheet_toggle").prop("checked");
+        if (!isChecked) {
+            layer.bindPopup("<b>"+layer.feature.properties.name+"</b><br>"+layer.feature.properties.n+" "+ ((showThis.dataset==="AveragePersonsPerHousehold")?"person household size":"households") +"<br>"+"<div id='popup'></div>");
+        } else {
+            layer.unbindPopup();
+        }
         bindMouseEvents(layer,layer.feature.properties.name);
     });
 }
@@ -370,9 +376,18 @@ function createDistrictAndParentChart(name) {
         $("#parent_charts_body").append($("<div>",{id: "distr_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
         $("#parent_charts_body").append($("<div>",{id: "parent_chart"}).css("display","inline-block").css("height","300px").css("width","40%"));
         
-        addDataToPieChart(name, qryDistrict, "distr_chart");
-        addDataToPieChart(name, qryParent, "parent_chart");
-        addDataToPopupChart(name, qryDistrict, "popup");
+        /*
+         * if data sheet is checked then put  data into datasheet charts, populate
+         * popup otherwise
+         */
+        var isChecked = $("#data_sheet_toggle").prop("checked");
+        if (isChecked) {
+            addDataToPieChart(name, qryDistrict, "distr_chart");
+            addDataToPieChart(name, qryParent, "parent_chart");
+        } else {
+            addDataToPopupChart(name, qryDistrict, "popup");
+        }
+        
     };
 }
 

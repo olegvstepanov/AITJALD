@@ -110,6 +110,7 @@ html, body{
 
 .collapse-all {
 	float:right;
+	cursor:pointer;
 }
 
 #chartContainer {

@@ -187,7 +187,7 @@
 			$("#map").css("height","60%");
 			map.invalidateSize();
 			$("#bottombar-toggle").attr("title","Hide Data Sheet.");
-		}
+		};
 		
 		function hideBottomMenu(withButton) {
 			if (withButton) {
@@ -202,7 +202,7 @@
 			map.invalidateSize();
 			
 			$("#bottombar-toggle").attr("title","Show Data Sheet.");
-		}
+		};
 		
 		function hideSidebar(withButton) {
 			if (withButton) {
@@ -218,12 +218,12 @@
 			$('#content-container').addClass('col-xs-12');
 			map.invalidateSize();
 			$("#sidebar-toggle").attr("title","Show Sidebar.");
-		}
+		};
 		
 		function hideMap() {
 			$('#map').hide();
 			hideSidebar(true);
-		}
+		};
 		
 		function showSidebar() {
 			$("#sidebar-toggle span").removeClass("glyphicon-menu-right").addClass("glyphicon-menu-left");
@@ -235,14 +235,14 @@
 			$('#content-container').addClass('col-xs-9');
 			map.invalidateSize();
 			$("#sidebar-toggle").attr("title","Hide Sidebar.");
-		}
+		};
 		
 		function showDocumentation() {
 			hideMap();
 			//hideDataSheet();
 			hideBottomMenu(true);
 			$('#voc').show();
-		}
+		};
 		
 		function showMap() {
 			//hideDataSheet();
@@ -251,13 +251,13 @@
 			
 			$('#map').show();
 			map.invalidateSize();
-		}
+		};
 		
 		
 		
 		function hideDocumentation() {
 			$('#voc').hide();
-		}
+		};
 		
 		function hideDataSheet() {
 		    $("#datasheet").hide();
@@ -270,6 +270,25 @@
 		};
 		
 		$("#data_sheet_toggle").prop("checked",false);
+		
+		
+		$("#button_datasheet").on("click",function(e){
+			e.preventDefault();
+			var isChecked = !$("#data_sheet_toggle").prop("checked");
+			$("#data_sheet_toggle").prop("checked",isChecked).show();
+			
+			console.log("This was checked? "+isChecked);
+			if (!isChecked) {
+				gjlayer.eachLayer(function(layer) {
+		            layer.bindPopup("<b>"+layer.feature.properties.name+"</b><br>"+layer.feature.properties.n+" "+ ((showThis.dataset==="AveragePersonsPerHousehold")?"person household size":"households") +"<br>"+"<div id='popup'></div>");
+		        });
+		    } else {
+		    	gjlayer.eachLayer(function(layer) {
+		            layer._layers[keys(layer._layers)[0]].unbindPopup();
+		      	});
+			}
+		});
+		
 		
 		$("#sidebar-toggle").click(function (e) {
 			if ($("#sidebar-container").css("display") == "none") {
@@ -305,12 +324,6 @@
 		          	$('#map').css("height", (e.clientY-min)+20+"px");
 		          	map.invalidateSize();
 		        }
-		        //var x = $('#datasheet').offset().top - e.pageY;
-		         //console.log(x);
-		          //$('#datasheet').css("height", x);
-		          //$('#map').css("margin-top", x);
-		          //map.invalidateSize();
-		        
     		});
 		});
 			
@@ -318,6 +331,8 @@
 			$(document).unbind('mousemove');
 		
 		});
+		
+		
 	</script>
 <script type="text/javascript">
 	      $('.help').click(function() {
