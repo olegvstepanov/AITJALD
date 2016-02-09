@@ -1,6 +1,7 @@
 // zoom to center of Münster
 var map = L.map('map').setView([51.9609808, 7.62416839], 13);
 
+// TO DO is this part used somewhere? Guess not. 
 var defaults = {
     icon: new L.Icon({
         iconUrl: 'red_dot.png',
@@ -119,7 +120,6 @@ function mapData() {
         output: 'json'
     },
     function(data){
-        console.log(data.results.bindings);
         processBindings(data);
     });
 }
@@ -219,10 +219,11 @@ function parseToGeoJSONFeatureCollection(data) {
 */
 function styleFeature(feature) {
     return {
-        color: colorScale(feature.properties.n),
-        weight: 0,
-        opacity: 0.9,
-        fillOpacity: 0.6
+        fillColor: colorScale(feature.properties.n),
+        color:'#87421F',
+        weight: 0.5,
+        opacity: 1,
+        fillOpacity: 0.9
     };
 }
 
@@ -252,7 +253,7 @@ function createMouseOverHandler(name) {
         var layer = e.target;
         layer.setStyle({
             weight: 5,
-            dashArray: '',
+            color: '#666',
             fillOpacity: 0.4
         });
         if (!L.Browser.ie && !L.Browser.opera) {
